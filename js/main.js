@@ -33,6 +33,7 @@
     if (state === 'title') G.koi.anchor = { x: G.W / 2, y: G.H * 0.78 };
   }
 
+  const buzz = (ms) => { try { if (navigator.vibrate && !save.muted) navigator.vibrate(ms); } catch (e) { /* không rung cũng không sao */ } };
   const at = (s) => ({ x: s.x, y: s.y + G.world.oy });
   const litColor = (type) => (type === 'normal' || type === 'gate' ? 'gold' : G.TYPE_COL[type]);
 
@@ -210,7 +211,7 @@
     } else if (ev.bold && ev.via === 'manual') {
       G.text(c.x, c.y - R - 28 * u, 'LIỀU ĂN NHIỀU!', { color: 'amber', size: 12.5, dur: 1.2 });
     }
-    if (ev.via === 'manual') Sfx.lit(ev.streak, ev.crit); else Sfx.cascade(ev.streak);
+    if (ev.via === 'manual') { Sfx.lit(ev.streak, ev.crit); buzz(ev.crit ? [12, 30, 24] : 10); } else Sfx.cascade(ev.streak);
 
     const purse = UI.pursePos();
     const n = clamp(Math.round(Math.log2(ev.gain + 1)) - 2, 1, 7);
@@ -267,6 +268,7 @@
     G.shake(ev.why === 'fail' ? 10 : 7);
     G.flashBG('rose', 0.14);
     if (ev.why !== 'wrath') Sfx.fail();
+    if (ev.why === 'fail') buzz(45);
     G.text(c.x, c.y - R - 8 * u, ev.why === 'fail' ? 'TRƯỢT' : 'SỤP ĐỔ', { color: 'rose', size: 14 });
     await G.wait(ev.why === 'fail' ? 0.34 : 0.28);
   }
@@ -424,7 +426,7 @@
   async function fxGateFail(ev) {
     const s = G.stars[ev.id], koi = G.koi, u = G.unit, R = G.radius(s), c = at(s);
     s.shake = 1;
-    Sfx.gateFail();
+    Sfx.gateFail(); buzz(60);
     G.shake(13); G.flashBG('rose', 0.2);
     G.ring(c.x, c.y, 'rose', R, R * 3.2, 0.55, 3);
     G.implode(c.x, c.y, 'rose', 20, R * 3);
@@ -442,7 +444,7 @@
     const final = run.won;
     await koiFree;
     s.rolling = false; s.state = 'lit'; s.litT = G.time; s.seals = ev.n;
-    Sfx.gateOpen();
+    Sfx.gateOpen(); buzz([20, 40, 20, 40, 60]);
     G.tween(1.0, (k) => { s.open = k; }, ease.outCubic);
     G.ring(c.x, c.y, 'gold', R, R * 9, 1.0, 6);
     G.ring(c.x, c.y, 'white', R, R * 6, 0.7, 4);
@@ -479,7 +481,7 @@
     G.world.alpha = 1; G.world.oy = 0;
     G.setPalette(Core.HEAVENS[0].pal);
     const koi = G.koi;
-    koi.setStage(save.wins > 0 ? 2 : 0); koi.big = save.wins > 0 ? 1.8 : 2.3; koi.wr = 1.1; koi.alpha = 1; koi.mode = 'wander'; koi.pearl = false;
+    koi.setStage(save.wins > 0 ? 2 : 0); koi.big = save.wins > 0 ? 1.8 : 2.3; koi.wr = 2; koi.alpha = 1; koi.mode = 'wander'; koi.pearl = false;
     relayout();
     if (koi.y < -20 || koi.y > G.H + 20) koi.tele(G.W / 2, G.H + 60, -Math.PI / 2);
     kiep = Math.min(kiep, save.kiep);
@@ -506,8 +508,8 @@
     koi.setStage(run.level >= 6 ? 2 : run.level >= 3 ? 1 : 0);
     koi.big = 1; koi.wr = 1; koi.alpha = 1; koi.pearl = false;
     syncHUD(true);
-    relayout();
     G.setLevel(lv, run, (m) => Core.oddsOf(run, lv, m));
+    relayout();
     syncView();
     G.world.alpha = 0; G.world.oy = -90;
     const sc0 = G.scroll;

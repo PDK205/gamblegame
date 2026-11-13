@@ -555,9 +555,12 @@
     const padX = Math.max(26, G.W * 0.06);
     const t = top + 10, b = bottom - 10;
     const h = Math.max(220, b - t);
-    const w = Math.min(G.W - padX * 2, h * 0.86);
+    const w = Math.min(G.W - padX * 2, h * 1.12);
     G.play = { x: (G.W - w) / 2, y: t, w, h };
-    G.unit = clamp(Math.min(w / 330, h / 590), 0.7, 1.75);
+    // chòm sao ít hàng thì sao được vẽ to hơn (chỉ có tác dụng khi màn hình rộng)
+    const rows = G.lv && G.stars.length ? G.lv.rowIds.length : 5;
+    const roomy = 1 + Math.max(0, 7 - rows) * 0.085;
+    G.unit = clamp(Math.min(w / 330, h / 590 * roomy), 0.7, 1.75);
     for (const s of G.stars) place(s);
   };
   G.starAt = function (x, y) {
@@ -1128,7 +1131,7 @@
   }
 
   /* ---------- vòng lặp ---------- */
-  let last = 0;
+  let last = 0, bgTick = 0;
   function frame(now) {
     requestAnimationFrame(frame);
     const dt = Math.min(0.05, Math.max(0, (now - last) / 1000)) * G.timeScale;
@@ -1137,7 +1140,8 @@
     G.atime += dt * G.speed;
     runTimers();
     update(dt);
-    drawBG();
+    bgTick ^= 1;
+    if (bgTick || G.flash[0] + G.flash[1] + G.flash[2] > 0.01) drawBG();
     draw();
   }
 
@@ -1146,7 +1150,7 @@
     G.W = W; G.H = H;
     G.dpr = Math.min(2, window.devicePixelRatio || 1);
     cv.width = Math.round(W * G.dpr); cv.height = Math.round(H * G.dpr);
-    const bs = W * H > 900000 ? 0.4 : 0.55;
+    const bs = Math.min(0.55, Math.sqrt(240000 / (W * H)));
     bgCv.width = Math.max(2, Math.round(W * bs)); bgCv.height = Math.max(2, Math.round(H * bs));
   };
 
