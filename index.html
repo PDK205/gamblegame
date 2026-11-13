@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#05060f">
+<meta name="description" content="Cá chép vượt chín tầng trời hóa rồng. Thắp sao bằng vận may, may mắn lây lan thành phản ứng dây chuyền.">
+<title>Ngân Hà Vũ Môn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Cormorant+SC:wght@600;700&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<!--GAME:BEGIN-->
+<canvas id="bg" aria-hidden="true"></canvas>
+<canvas id="fx" role="img" aria-label="Chòm sao của tầng trời hiện tại"></canvas>
+<div id="vignette" aria-hidden="true"></div>
+
+<div id="app">
+  <header id="hud-top" class="hud" hidden>
+    <div class="hud-line">
+      <div id="hearts" class="hearts" aria-label="Sinh mệnh"></div>
+      <div id="purse" class="purse" aria-label="Ngọc"><i class="pearl"></i><b id="pearls">0</b></div>
+    </div>
+    <div class="hud-line">
+      <div class="level-label"><span id="lv-n">Tầng 1/9</span><span id="lv-name">Vân Tiêu</span></div>
+      <div id="streak" class="streak"><span>chuỗi <b id="streak-n">0</b></span><em id="streak-mult">×1</em></div>
+    </div>
+  </header>
+
+  <div id="banner" aria-live="polite"><div class="banner-in"><strong id="banner-main"></strong><span id="banner-sub"></span></div></div>
+  <div id="hint" role="status"></div>
+  <div id="tip" hidden></div>
+
+  <footer id="hud-bottom" class="hud" hidden>
+    <button id="btn-clover" class="clover-btn" type="button" aria-pressed="false" aria-label="Dùng cỏ bốn lá: cộng 30% cho một ngôi sao">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><circle cx="8.2" cy="8.2" r="4.4"/><circle cx="15.8" cy="8.2" r="4.4"/><circle cx="8.2" cy="15.8" r="4.4"/><circle cx="15.8" cy="15.8" r="4.4"/></g><path d="M12 12l6.5 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
+      <b id="clovers">1</b>
+    </button>
+    <div id="charms" class="charms" aria-label="Bảo vật đang có"></div>
+    <div class="tools">
+      <button id="btn-speed" class="tool" type="button" aria-pressed="false" aria-label="Quay nhanh">»</button>
+      <button id="btn-sound" class="tool" type="button" aria-pressed="true" aria-label="Âm thanh">♪</button>
+      <button id="btn-help" class="tool" type="button" aria-label="Cách chơi">?</button>
+    </div>
+  </footer>
+
+  <!-- Màn đầu -->
+  <section id="scr-title" class="screen show" aria-labelledby="logo">
+    <div class="title-wrap">
+      <p class="eyebrow">Cá chép vượt chín tầng trời</p>
+      <h1 id="logo" class="logo"><span class="logo-a">Ngân Hà</span><span class="logo-b">Vũ Môn</span></h1>
+      <p class="tagline">Thắp sao bằng vận may. May mắn lây lan thành dây chuyền. Qua đủ chín tầng, cá chép hóa rồng.</p>
+      <div id="kiep-row" class="kiep-row" hidden></div>
+      <div class="actions">
+        <button id="btn-start" class="btn primary" type="button">Thả cá chép</button>
+        <button id="btn-how" class="btn ghost" type="button">Cách chơi</button>
+      </div>
+      <p id="record" class="record"></p>
+    </div>
+  </section>
+
+  <!-- Cách chơi -->
+  <section id="scr-help" class="screen dim" aria-labelledby="help-h">
+    <div class="panel help">
+      <p class="eyebrow">Luật trời</p>
+      <h2 id="help-h">Cách chơi</h2>
+      <ol class="rules">
+        <li><b>Chạm một ngôi sao để thử vận.</b> Cá chép bơi vòng quanh rồi dừng lại. Dừng trong cung sáng thì sao bừng cháy.</li>
+        <li><b>May mắn lây lan.</b> Sao sáng cộng tỉ lệ cho các sao kề bên. Sao nào chạm 100% sẽ tự bùng cháy và kéo theo cả dây chuyền.</li>
+        <li><b>Trượt thì sao sụp thành hố đen.</b> Hố đen hút bớt vận của sao kề bên và bạn mất 1 ❤. Hết ❤ là hết lượt.</li>
+        <li><b>Liều thì ăn nhiều.</b> Tỉ lệ càng thấp, ngọc càng nhiều. Thắng liên tiếp làm hệ số chuỗi tăng dần.</li>
+        <li><b>Thắp Thiên Môn ở đỉnh để lên tầng.</b> Ở lại vét thêm ngọc hay đi ngay là tùy bạn. Qua đủ 9 tầng, cá chép hóa rồng.</li>
+      </ol>
+      <ul class="legend">
+        <li><i class="ic ic-fortune"></i><span><b>Sao Tài Lộc</b> ngọc ×4</span></li>
+        <li><i class="ic ic-life"></i><span><b>Sao Sinh</b> hồi 1 ❤</span></li>
+        <li><i class="ic ic-wish"></i><span><b>Sao Ước</b> tặng cỏ bốn lá</span></li>
+        <li><i class="ic ic-nova"></i><span><b>Siêu Tân Tinh</b> thắp mọi sao kề</span></li>
+        <li><i class="ic ic-mystery">?</i><span><b>Sao Bí Ẩn</b> quà ngẫu nhiên</span></li>
+        <li><i class="ic ic-cursed"></i><span><b>Hung Tinh</b> ngọc ×8, trượt mất 2 ❤</span></li>
+      </ul>
+      <p class="fine">Giữ ngón tay trên một ngôi sao để xem chi tiết. Cỏ bốn lá ở góc dưới trái cộng thẳng 30% cho ngôi sao bạn chạm kế tiếp.</p>
+      <div class="actions"><button id="btn-help-ok" class="btn primary" type="button">Đã hiểu</button></div>
+    </div>
+  </section>
+
+  <!-- Chợ Trời -->
+  <section id="scr-shop" class="screen dim" aria-labelledby="shop-h">
+    <div class="panel shop">
+      <p id="shop-eyebrow" class="eyebrow">Đã vượt tầng 1</p>
+      <h2 id="shop-h">Chợ Trời</h2>
+      <div id="shop-tally" class="tally"></div>
+
+      <h3 class="sec"><span>Lễ vật vượt tầng</span><em id="shop-pick-note">chọn một</em></h3>
+      <div id="shop-cards" class="cards"></div>
+      <button id="btn-reroll" class="btn tiny" type="button">Đổi ba lễ vật khác</button>
+
+      <h3 class="sec"><span>Tiêu ngọc</span><em id="shop-wallet"></em></h3>
+      <div class="stalls">
+        <button id="buy-heal" class="stall" type="button"><i class="st-ic st-heart"></i><span class="st-name">Hồi 1 ❤</span><span class="st-price"><i class="pearl"></i><b>40</b></span></button>
+        <button id="buy-clover" class="stall" type="button"><i class="st-ic st-clover"></i><span class="st-name">Cỏ bốn lá</span><span class="st-price"><i class="pearl"></i><b>30</b></span></button>
+        <button id="buy-stick" class="stall" type="button"><i class="st-ic st-stick"></i><span class="st-name">Rút quẻ</span><span class="st-price"><i class="pearl"></i><b>70</b></span></button>
+      </div>
+      <p id="stick-result" class="stick-result" role="status"></p>
+
+      <div class="actions"><button id="btn-next" class="btn primary" type="button">Lên tầng kế</button></div>
+    </div>
+  </section>
+
+  <!-- Kết thúc lượt -->
+  <section id="scr-end" class="screen dim" aria-labelledby="end-title">
+    <div class="panel end">
+      <p id="end-eyebrow" class="eyebrow"></p>
+      <h2 id="end-title"></h2>
+      <p id="end-sub" class="end-sub"></p>
+      <dl id="end-stats" class="stats"></dl>
+      <div id="end-charms" class="charms end-charms"></div>
+      <div class="actions">
+        <button id="btn-again" class="btn primary" type="button">Thử vận lần nữa</button>
+        <button id="btn-home" class="btn ghost" type="button">Về màn đầu</button>
+      </div>
+    </div>
+  </section>
+</div>
+<!--GAME:END-->
+<script src="js/core.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/gfx.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
