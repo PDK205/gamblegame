@@ -1216,8 +1216,8 @@
       b2x.globalCompositeOperation = 'copy'; b2x.drawImage(b1, 0, 0, b2.width, b2.height);
       ctx.globalCompositeOperation = 'lighter';
       ctx.imageSmoothingEnabled = true;
-      ctx.globalAlpha = 0.3; ctx.drawImage(b1, 0, 0, cv.width, cv.height);
-      ctx.globalAlpha = 0.42; ctx.drawImage(b2, 0, 0, cv.width, cv.height);
+      ctx.globalAlpha = 0.22; ctx.drawImage(b1, 0, 0, cv.width, cv.height);
+      ctx.globalAlpha = 0.34; ctx.drawImage(b2, 0, 0, cv.width, cv.height);
       ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
     }
   }
