@@ -732,7 +732,8 @@
     wishSpawned++; wishT = rand(20, 34);
     G.spawnWish();
     Sfx.wishAppear();
-    teach('wish', 'Sao băng kìa! Chạm trúng nó để nhận một điều ước.', 3800);
+    // người chơi cũ cũng cần được nhắc một lần về tính năng mới
+    if (!save.tipWish) { save.tipWish = 1; persist(); UI.hint('Sao băng kìa! Chạm trúng nó để nhận một điều ước.', 3800); }
   }
 
   async function levelClear() {
