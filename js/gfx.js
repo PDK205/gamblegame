@@ -38,13 +38,14 @@
 
   const G = {
     ease, COL, TYPE_COL,
-    time: 0, atime: 0, speed: 1, timeScale: 1,
+    time: 0, atime: 0, speed: 1, boost: 1, timeScale: 1,
+    bloom: true, bloomLock: false, fever: false, wish: null, onFrame: null,
     W: 0, H: 0, dpr: 1, unit: 1,
     play: { x: 0, y: 0, w: 100, h: 100 },
     stars: [], edges: [], lv: null, fog: false,
     world: { oy: 0, alpha: 1 },
     cam: { shake: 0, sx: 0, sy: 0, zoom: 0 },
-    hover: -1, scroll: 0, flash: [0, 0, 0],
+    hover: -1, scroll: 0, flash: [0, 0, 0], dprCap: 2,
     reduced: false,
   };
 
@@ -281,6 +282,29 @@
   G.streak = function (x0, y0, x1, y1, dur, color) {
     streaks.push({ x0, y0, x1, y1, t: 0, dur: dur || 0.3, c: color || 'white' });
   };
+  G.spawnWish = function () {
+    const pl = G.play, left = Math.random() < 0.5;
+    const y0 = pl.y + pl.h * rand(0.1, 0.36), y1 = pl.y + pl.h * rand(0.3, 0.6);
+    const x0 = left ? -50 : G.W + 50, x1 = left ? G.W + 50 : -50;
+    G.wish = { x0, y0, x1, y1, cx: (x0 + x1) / 2, cy: Math.min(y0, y1) - pl.h * 0.2, t: 0, dur: clamp(G.W / 170, 3, 5.5), x: x0, y: y0 };
+  };
+  G.wishAt = function (x, y) {
+    const w = G.wish;
+    return !!w && Math.hypot(w.x - x, w.y - y) < Math.max(48, 42 * G.unit);
+  };
+  G.catchWish = function () {
+    const w = G.wish; if (!w) return null;
+    G.wish = null;
+    G.burst(w.x, w.y, 'sky', 40, 300 * G.unit, { streak: true, life: 0.8 });
+    G.burst(w.x, w.y, 'white', 16, 150 * G.unit, { life: 0.6 });
+    G.ring(w.x, w.y, 'sky', 6, 90 * G.unit, 0.6, 4);
+    G.ring(w.x, w.y, 'white', 6, 50 * G.unit, 0.4, 3);
+    return { x: w.x, y: w.y };
+  };
+  function wishPos(w, k) {
+    const m = 1 - k;
+    return [m * m * w.x0 + 2 * m * k * w.cx + k * k * w.x1, m * m * w.y0 + 2 * m * k * w.cy + k * k * w.y1];
+  }
   G.shake = function (a) { if (!G.reduced) G.cam.shake = Math.max(G.cam.shake, a); };
   G.punch = function (z) { if (!G.reduced) G.cam.zoom = Math.max(G.cam.zoom, z); };
 
@@ -527,11 +551,11 @@
   /* ---------- chòm sao ---------- */
   function place(s) {
     const pl = G.play, u = G.unit;
-    const mT = 28 * u, mB = 60 * u;
+    const mT = 31 * u, mB = 60 * u;
     s.x = pl.x + s.nx * pl.w;
     s.y = pl.y + mT + (1 - s.ny) * (pl.h - mT - mB);
   }
-  G.radius = (s) => (s.type === 'gate' ? 27 : s.type === 'normal' ? 14.5 : 16) * G.unit;
+  G.radius = (s) => (s.type === 'gate' ? 31 : s.type === 'normal' ? 14.5 : 16) * G.unit;
 
   G.setLevel = function (lv, run, getOdds) {
     G.lv = lv; G.fog = !!lv.fog;
@@ -825,45 +849,68 @@
     ctx.globalAlpha = 1;
   }
 
+  // Thiên Môn: một cổng trăng dát vàng, lòng cổng là xoáy sáng, vành ngoài cùng là cung tỉ lệ
   function drawGate(s, x, y, R, pop) {
     const u = G.unit, t = G.time, wa = G.world.alpha;
     const open = s.open;
+    const Rs = R * 0.74, Rp = R * 0.6, band = R * 0.2;
+
     ctx.globalCompositeOperation = 'lighter';
-    glow('gold', x, y, R * (4.6 + open * 6 + s.pulse), (0.3 + open * 0.6 + s.pulse * 0.3) * wa);
-    // xoáy sáng bên trong cổng
-    for (let i = 0; i < 5; i++) {
-      const a0 = t * (0.5 + i * 0.13) * (i % 2 ? -1 : 1) + i * 1.3;
-      setA(0.22 + open * 0.5); ctx.strokeStyle = rgba(i % 2 ? COL.gold : COL.sky, 1);
-      ctx.lineWidth = (2.4 - i * 0.3) * u; ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.arc(x, y, R * (0.22 + i * 0.13), a0, a0 + 2.3); ctx.stroke();
+    glow('gold', x, y, R * (4.2 + open * 6 + s.pulse), (0.32 + open * 0.6 + s.pulse * 0.3) * wa);
+    {
+      // thác sáng đổ xuống dưới chân cổng
+      const g = ctx.createLinearGradient(x, y + Rs * 0.7, x, y + R * 3.2);
+      g.addColorStop(0, 'rgba(170,220,255,0.22)'); g.addColorStop(1, 'rgba(170,220,255,0)');
+      setA(1); ctx.fillStyle = g;
+      ctx.fillRect(x - Rs * 0.6, y + Rs * 0.7, Rs * 1.2, R * 2.5);
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    {
+      const g = ctx.createRadialGradient(x, y, 0, x, y, Rp);
+      g.addColorStop(0, 'rgba(190,225,255,' + (0.42 + open * 0.55) + ')');
+      g.addColorStop(0.5, 'rgba(60,105,210,0.6)');
+      g.addColorStop(1, 'rgba(6,8,34,0.97)');
+      setA(1); ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(x, y, Rp, 0, TAU); ctx.fill();
+    }
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.lineCap = 'round';
+    for (let i = 0; i < 4; i++) {
+      const a0 = t * (0.75 + i * 0.17) * (i % 2 ? -1 : 1) + i * 1.6;
+      setA(0.34 + open * 0.5); ctx.strokeStyle = rgba(i % 2 ? COL.gold : COL.sky, 1);
+      ctx.lineWidth = (2 - i * 0.25) * u;
+      ctx.beginPath(); ctx.arc(x, y, Rp * (0.3 + i * 0.19), a0, a0 + 2.1); ctx.stroke();
     }
     if (open > 0) {
       glow('white', x, y, R * 3.5 * open, open * wa);
-      // cột sáng xuyên trời
       const g = ctx.createLinearGradient(x, y, x, y - G.H);
       g.addColorStop(0, 'rgba(255,240,190,' + (0.8 * open) + ')'); g.addColorStop(1, 'rgba(255,240,190,0)');
       setA(1); ctx.fillStyle = g; ctx.fillRect(x - R * 0.5 * open, y - G.H, R * open, G.H);
     }
     ctx.globalCompositeOperation = 'source-over';
-
-    setA(0.6); ctx.fillStyle = '#070a1c';
-    ctx.beginPath(); ctx.arc(x, y, R * 0.42, 0, TAU); ctx.fill();
-
-    // vành cổng
-    ctx.lineCap = 'butt';
-    setA(s.rolling ? 0.55 : 0.3);
-    ctx.strokeStyle = s.rolling ? 'rgba(120,70,200,1)' : rgba(COL.gold, 1);
-    ctx.lineWidth = (s.rolling ? 4.5 : 2.6) * u;
-    ctx.beginPath(); ctx.arc(x, y, R, 0, TAU); ctx.stroke();
-    // đinh tán quanh cổng
-    setA(0.75); ctx.fillStyle = '#ffe6a6';
-    for (let i = 0; i < 12; i++) {
-      const a = i * TAU / 12 + t * 0.12;
-      const rr = R + 6 * u;
-      ctx.save(); ctx.translate(x + Math.cos(a) * rr, y + Math.sin(a) * rr); ctx.rotate(a + Math.PI / 4);
-      const d = (i % 3 === 0 ? 2.1 : 1.2) * u;
-      ctx.fillRect(-d, -d, d * 2, d * 2); ctx.restore();
+    {
+      const g = ctx.createLinearGradient(x, y - Rs, x, y + Rs);
+      g.addColorStop(0, '#fff2c8'); g.addColorStop(0.42, '#e6aa3c'); g.addColorStop(1, '#6b3f07');
+      setA(1); ctx.lineCap = 'butt'; ctx.strokeStyle = g; ctx.lineWidth = band;
+      ctx.beginPath(); ctx.arc(x, y, Rs, 0, TAU); ctx.stroke();
+      ctx.strokeStyle = 'rgba(46,24,2,0.6)'; ctx.lineWidth = 1 * u;
+      ctx.beginPath(); ctx.arc(x, y, Rs - band / 2, 0, TAU); ctx.stroke();
+      ctx.beginPath(); ctx.arc(x, y, Rs + band / 2, 0, TAU); ctx.stroke();
+      ctx.lineWidth = 1.1 * u;
+      ctx.beginPath();
+      for (let i = 0; i < 16; i++) {
+        const a = i * TAU / 16 + t * 0.09;
+        ctx.moveTo(x + Math.cos(a) * (Rs - band * 0.3), y + Math.sin(a) * (Rs - band * 0.3));
+        ctx.lineTo(x + Math.cos(a) * (Rs + band * 0.3), y + Math.sin(a) * (Rs + band * 0.3));
+      }
+      ctx.stroke();
     }
+
+    // vành tỉ lệ
+    setA(s.rolling ? 0.55 : 0.26);
+    ctx.strokeStyle = s.rolling ? 'rgba(120,70,200,1)' : rgba(COL.gold, 1);
+    ctx.lineWidth = (s.rolling ? 4 : 2) * u;
+    ctx.beginPath(); ctx.arc(x, y, R, 0, TAU); ctx.stroke();
     if (s.state !== 'lit') {
       const p = s.p, col = oddsColor(p);
       const a0 = s.arc, a1 = s.arc + clamp(p, 0, 1) * TAU;
@@ -872,7 +919,7 @@
       setA(0.3 + s.pulse * 0.4); ctx.strokeStyle = col; ctx.lineWidth = (9 + s.pulse * 5) * u;
       ctx.beginPath(); ctx.arc(x, y, R, a0, a1); ctx.stroke();
       ctx.globalCompositeOperation = 'source-over';
-      setA(1); ctx.strokeStyle = col; ctx.lineWidth = (s.rolling ? 5.4 : 4.2) * u;
+      setA(1); ctx.strokeStyle = col; ctx.lineWidth = (s.rolling ? 5.2 : 4) * u;
       ctx.beginPath(); ctx.arc(x, y, R, a0, a1); ctx.stroke();
       if (s.rescue > 0 && p < 1) {
         setA(0.9); ctx.strokeStyle = rgba(COL.jade, 1); ctx.lineWidth = 2.6 * u; ctx.lineCap = 'butt';
@@ -881,7 +928,7 @@
       if (s.clover) {
         ctx.globalCompositeOperation = 'lighter';
         setA(0.8); ctx.strokeStyle = rgba(COL.jade, 1); ctx.lineWidth = 1.4 * u;
-        ctx.beginPath(); ctx.arc(x, y, R + 11 * u, 0, TAU); ctx.stroke();
+        ctx.beginPath(); ctx.arc(x, y, R + 6 * u, 0, TAU); ctx.stroke();
         ctx.globalCompositeOperation = 'source-over';
       }
       if (s.rolling) {
@@ -892,14 +939,13 @@
         ctx.globalCompositeOperation = 'source-over';
         setA(1); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.4 * u; ctx.lineCap = 'round';
         ctx.beginPath();
-        ctx.moveTo(x + Math.cos(s.mark) * (R - 7 * u), y + Math.sin(s.mark) * (R - 7 * u));
-        ctx.lineTo(x + Math.cos(s.mark) * (R + 7 * u), y + Math.sin(s.mark) * (R + 7 * u));
+        ctx.moveTo(x + Math.cos(s.mark) * (R - 6 * u), y + Math.sin(s.mark) * (R - 6 * u));
+        ctx.lineTo(x + Math.cos(s.mark) * (R + 6 * u), y + Math.sin(s.mark) * (R + 6 * u));
         ctx.stroke();
       }
-      // con số ngay giữa cổng
       ctx.font = '800 ' + (13.5 * u).toFixed(1) + 'px ' + G.font;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      setA(1); ctx.lineWidth = 3.5 * u; ctx.strokeStyle = 'rgba(4,6,16,0.9)'; ctx.lineJoin = 'round';
+      setA(1); ctx.lineWidth = 3.6 * u; ctx.strokeStyle = 'rgba(4,6,20,0.92)'; ctx.lineJoin = 'round';
       const label = Math.round(p * 100) + '%';
       ctx.strokeText(label, x, y + 0.5 * u);
       ctx.fillStyle = s.pulse > 0.05 ? '#fff6c8' : '#fff';
@@ -908,7 +954,7 @@
     // ấn phong
     if (s.sealsNeed > 1) {
       for (let i = 0; i < s.sealsNeed; i++) {
-        const sx = x + (i - (s.sealsNeed - 1) / 2) * 15 * u, sy = y + R + 17 * u;
+        const sx = x + (i - (s.sealsNeed - 1) / 2) * 15 * u, sy = y + R + 14 * u;
         const on = i < s.seals;
         ctx.save(); ctx.translate(sx, sy); ctx.rotate(Math.PI / 4);
         if (on) { ctx.globalCompositeOperation = 'lighter'; glow('gold', 0, 0, 22 * u, 0.8 * wa); ctx.globalCompositeOperation = 'source-over'; }
@@ -975,13 +1021,29 @@
       f.t += dt; f.y += f.vy * dt * (1 - f.t / f.dur);
       if (f.t >= f.dur) floats.splice(i, 1);
     }
-    for (let i = flows.length - 1; i >= 0; i--) { flows[i].t += dt * G.speed; if (flows[i].t >= flows[i].dur) flows.splice(i, 1); }
+    for (let i = flows.length - 1; i >= 0; i--) { flows[i].t += dt * G.speed * G.boost; if (flows[i].t >= flows[i].dur) flows.splice(i, 1); }
     for (let i = fliers.length - 1; i >= 0; i--) {
       const f = fliers[i]; f.t += dt;
       if (f.t >= f.dur) { fliers.splice(i, 1); if (f.cb) f.cb(); }
     }
     for (let i = bolts.length - 1; i >= 0; i--) { bolts[i].t += dt; if (bolts[i].t >= bolts[i].dur) bolts.splice(i, 1); }
     for (let i = streaks.length - 1; i >= 0; i--) { streaks[i].t += dt; if (streaks[i].t >= streaks[i].dur) streaks.splice(i, 1); }
+
+    if (G.wish) {
+      const w = G.wish;
+      w.t += dt;
+      const k = w.t / w.dur;
+      if (k >= 1) G.wish = null;
+      else {
+        const q = wishPos(w, k); w.x = q[0]; w.y = q[1];
+        if (!G.reduced) parts.push({ x: w.x + rand(-4, 4), y: w.y + rand(-4, 4), vx: rand(-20, 20), vy: rand(-10, 30), life: 0, max: rand(0.5, 1), size: rand(4, 9) * G.unit, c: Math.random() < 0.6 ? 'sky' : 'white', drag: 1, g: 30, streak: false });
+      }
+    }
+    if (G.fever) {
+      // Thời Vận: trời ửng vàng, bụi vàng bay ngược lên
+      G.flash[0] = Math.max(G.flash[0], 0.11); G.flash[1] = Math.max(G.flash[1], 0.07); G.flash[2] = Math.max(G.flash[2], 0.02);
+      if (!G.reduced && Math.random() < dt * 34) parts.push({ x: rand(0, G.W), y: G.H + 10, vx: rand(-14, 14), vy: rand(-260, -110), life: 0, max: rand(1.2, 2.2), size: rand(4, 9) * G.unit, c: Math.random() < 0.7 ? 'gold' : 'amber', drag: 0.2, g: 0, streak: Math.random() < 0.4 });
+    }
 
     const c = G.cam;
     c.shake = Math.max(0, c.shake - dt * (14 + c.shake * 5));
@@ -1101,6 +1163,24 @@
       ctx.globalAlpha = a * 0.6; ctx.lineWidth = 1.1 * G.unit; ctx.strokeStyle = 'rgba(255,240,180,1)';
       for (const f of b.forks) path(f);
     }
+    // sao băng ước nguyện: chạm trúng đầu sao là bắt được
+    if (G.wish) {
+      const w = G.wish, k = w.t / w.dur, u = G.unit;
+      const fade = Math.min(1, k / 0.08, (1 - k) / 0.08);
+      for (let j = 14; j >= 1; j--) {
+        const q = wishPos(w, Math.max(0, k - j * 0.012));
+        glow(j % 3 ? 'sky' : 'white', q[0], q[1], (26 - j * 1.5) * u, fade * (0.5 - j * 0.03));
+      }
+      ctx.save(); ctx.translate(w.x, w.y); ctx.rotate(G.time * 1.4);
+      const fs = (70 + 14 * Math.sin(G.time * 9)) * u;
+      ctx.globalAlpha = fade; ctx.drawImage(sprites.flareWhite, -fs / 2, -fs / 2, fs, fs);
+      ctx.restore();
+      glow('sky', w.x, w.y, 64 * u, fade * 0.8);
+      glow('white', w.x, w.y, 24 * u, fade);
+      const pr = (20 + 9 * ((G.time * 1.6) % 1)) * u;
+      ctx.globalAlpha = fade * (1 - ((G.time * 1.6) % 1)) * 0.9; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2 * u;
+      ctx.beginPath(); ctx.arc(w.x, w.y, pr, 0, TAU); ctx.stroke();
+    }
     // ngọc bay về túi
     for (const f of fliers) {
       if (f.t < 0) continue;
@@ -1128,17 +1208,44 @@
     }
     ctx.globalAlpha = 1;
     ctx.restore();
+
+    // toả sáng: chồng lên chính khung hình đã thu nhỏ và làm nhoè
+    if (G.bloom && b1) {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      b1x.globalCompositeOperation = 'copy'; b1x.drawImage(cv, 0, 0, b1.width, b1.height);
+      b2x.globalCompositeOperation = 'copy'; b2x.drawImage(b1, 0, 0, b2.width, b2.height);
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.imageSmoothingEnabled = true;
+      ctx.globalAlpha = 0.3; ctx.drawImage(b1, 0, 0, cv.width, cv.height);
+      ctx.globalAlpha = 0.42; ctx.drawImage(b2, 0, 0, cv.width, cv.height);
+      ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+    }
   }
 
   /* ---------- vòng lặp ---------- */
   let last = 0, bgTick = 0;
+  let b1 = null, b1x = null, b2 = null, b2x = null;
+  let perfAcc = 0, perfN = 0, perfSlow = 0, perfWarm = 0;
+  // máy yếu thì tự tắt toả sáng, vẫn chậm thì hạ độ nét, để game luôn mượt
+  function watchPerf(raw) {
+    if (raw > 0.25 || G.bloomLock) return;
+    if (perfWarm < 90) { perfWarm++; return; }
+    perfAcc += raw; perfN++;
+    if (perfN < 60) return;
+    const avg = perfAcc / perfN; perfAcc = 0; perfN = 0;
+    perfSlow = avg > 0.026 ? perfSlow + 1 : Math.max(0, perfSlow - 1);
+    if (perfSlow >= 3 && G.bloom) { G.bloom = false; perfSlow = 0; }
+    else if (perfSlow >= 4 && !G.bloom && G.dprCap > 1.25) { G.dprCap = 1.25; perfSlow = 0; G.resize(); }
+  }
   function frame(now) {
     requestAnimationFrame(frame);
+    watchPerf((now - last) / 1000);
     const dt = Math.min(0.05, Math.max(0, (now - last) / 1000)) * G.timeScale;
     last = now;
     G.time += dt;
-    G.atime += dt * G.speed;
+    G.atime += dt * G.speed * G.boost;
     runTimers();
+    if (G.onFrame) G.onFrame(dt);
     update(dt);
     bgTick ^= 1;
     if (bgTick || G.flash[0] + G.flash[1] + G.flash[2] > 0.01) drawBG();
@@ -1148,8 +1255,11 @@
   G.resize = function () {
     const W = window.innerWidth, H = window.innerHeight;
     G.W = W; G.H = H;
-    G.dpr = Math.min(2, window.devicePixelRatio || 1);
+    G.dpr = Math.min(G.dprCap || 2, window.devicePixelRatio || 1);
     cv.width = Math.round(W * G.dpr); cv.height = Math.round(H * G.dpr);
+    if (!b1) { b1 = document.createElement('canvas'); b1x = b1.getContext('2d'); b2 = document.createElement('canvas'); b2x = b2.getContext('2d'); }
+    b1.width = Math.max(2, cv.width >> 2); b1.height = Math.max(2, cv.height >> 2);
+    b2.width = Math.max(2, cv.width >> 3); b2.height = Math.max(2, cv.height >> 3);
     const bs = Math.min(0.55, Math.sqrt(240000 / (W * H)));
     bgCv.width = Math.max(2, Math.round(W * bs)); bgCv.height = Math.max(2, Math.round(H * bs));
   };

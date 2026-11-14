@@ -24,18 +24,22 @@
   const GATE_SPREAD = 1.5;   // Thiên Môn hưởng vận lan mạnh hơn sao thường
   const GATE_PITY = 0.08;    // mỗi lần trượt cổng, cổng dễ hơn một chút
   const START_HP = 5;
+  const FEVER_MAX = 12;      // số sao phải thắp để nạp đầy Thời Vận
+  const FEVER_ROLLS = 3;     // Thời Vận kéo dài bấy nhiêu lượt thử
+  const FEVER_ODDS = 0.15;   // trong Thời Vận: mọi tỉ lệ cộng thêm
+  const FEVER_PEARL = 2;     // và ngọc nhân đôi
 
   /* ---------- chín tầng trời ---------- */
   const HEAVENS = [
     { name: 'Vân Tiêu',   sub: 'Nơi vận may chớm nở',                 rows: [3, 4, 3, 2],          hi: 0.92, lo: 0.60, gate: 0.15, pal: ['#081a3a', '#1c5fa8', '#59e0d0'] },
-    { name: 'Nguyệt Cung', sub: 'Ánh trăng soi lối cá chép',           rows: [3, 4, 4, 3, 2],       hi: 0.89, lo: 0.54, gate: 0.12, pal: ['#0c1440', '#3a4fc0', '#b9c8ff'] },
-    { name: 'Lôi Trì',    sub: 'Thiên kiếp · sét đánh may rủi khó lường', rows: [4, 4, 4, 3, 2],    hi: 0.85, lo: 0.46, gate: 0.10, pal: ['#0a0f33', '#5a3fd0', '#ffe27a'], boss: 'thunder' },
-    { name: 'Tinh Hà',    sub: 'Dòng sông ngọc · lộc rơi đầy trời',    rows: [3, 4, 5, 4, 3, 2],    hi: 0.82, lo: 0.41, gate: 0.08, pal: ['#04202c', '#0f8a8a', '#ffd77a'], rich: true },
-    { name: 'Ngọc Hư',    sub: 'Hung tinh lộ diện · liều thì ăn nhiều', rows: [4, 5, 4, 4, 3, 2],   hi: 0.77, lo: 0.34, gate: 0.06, pal: ['#12103a', '#7a3fc8', '#ff8ad0'], cursed: 2 },
-    { name: 'Mê Vụ',      sub: 'Thiên kiếp · sương che mắt, vận khó dò', rows: [4, 4, 5, 4, 3, 2],  hi: 0.72, lo: 0.28, gate: 0.05, pal: ['#0a141f', '#35586c', '#8fb4c8'], boss: 'fog', cursed: 1 },
-    { name: 'Hỏa Vân',    sub: 'Hố đen đói khát · hút vận gấp đôi',    rows: [4, 5, 5, 4, 4, 3, 2], hi: 0.68, lo: 0.23, gate: 0.04, pal: ['#2a0a18', '#c0392b', '#ffb347'], drain: 2, cursed: 2 },
-    { name: 'Thái Hư',    sub: 'Cõi hư vô · hố đen chực sẵn',          rows: [4, 5, 5, 5, 4, 3, 2], hi: 0.64, lo: 0.19, gate: 0.03, pal: ['#07060f', '#3a2a7a', '#9d6bff'], preVoid: 3, cursed: 2 },
-    { name: 'Vũ Môn',     sub: 'Thiên kiếp cuối · ba ấn phong long môn', rows: [4, 5, 5, 5, 4, 4, 3], hi: 0.59, lo: 0.13, gate: 0.00, pal: ['#171003', '#a87608', '#ffdf8a'], boss: 'dragon', seals: 3, cursed: 2 },
+    { name: 'Nguyệt Cung', sub: 'Ánh trăng soi lối cá chép',           rows: [3, 4, 4, 3, 2],       hi: 0.87, lo: 0.51, gate: 0.12, pal: ['#0c1440', '#3a4fc0', '#b9c8ff'] },
+    { name: 'Lôi Trì',    sub: 'Thiên kiếp · sét đánh may rủi khó lường', rows: [4, 4, 4, 3, 2],    hi: 0.82, lo: 0.43, gate: 0.10, pal: ['#0a0f33', '#5a3fd0', '#ffe27a'], boss: 'thunder' },
+    { name: 'Tinh Hà',    sub: 'Dòng sông ngọc · lộc rơi đầy trời',    rows: [3, 4, 5, 4, 3, 2],    hi: 0.78, lo: 0.37, gate: 0.08, pal: ['#04202c', '#0f8a8a', '#ffd77a'], rich: true },
+    { name: 'Ngọc Hư',    sub: 'Hung tinh lộ diện · liều thì ăn nhiều', rows: [4, 5, 4, 4, 3, 2],   hi: 0.73, lo: 0.31, gate: 0.06, pal: ['#12103a', '#7a3fc8', '#ff8ad0'], cursed: 2 },
+    { name: 'Mê Vụ',      sub: 'Thiên kiếp · sương che mắt, vận khó dò', rows: [4, 4, 5, 4, 3, 2],  hi: 0.68, lo: 0.25, gate: 0.05, pal: ['#0a141f', '#35586c', '#8fb4c8'], boss: 'fog', cursed: 1 },
+    { name: 'Hỏa Vân',    sub: 'Hố đen đói khát · hút vận gấp đôi',    rows: [4, 5, 5, 4, 4, 3, 2], hi: 0.64, lo: 0.20, gate: 0.04, pal: ['#2a0a18', '#c0392b', '#ffb347'], drain: 2, cursed: 2 },
+    { name: 'Thái Hư',    sub: 'Cõi hư vô · hố đen chực sẵn',          rows: [4, 5, 5, 5, 4, 3, 2], hi: 0.60, lo: 0.16, gate: 0.03, pal: ['#07060f', '#3a2a7a', '#9d6bff'], preVoid: 3, cursed: 2 },
+    { name: 'Vũ Môn',     sub: 'Thiên kiếp cuối · ba ấn phong long môn', rows: [4, 5, 5, 5, 4, 4, 3], hi: 0.55, lo: 0.11, gate: 0.00, pal: ['#171003', '#a87608', '#ffdf8a'], boss: 'dragon', seals: 3, cursed: 2 },
   ];
 
   /* ---------- các loại sao ---------- */
@@ -91,11 +95,13 @@
       hp: START_HP, maxHp: START_HP,
       pearls: 0, score: 0,
       streak: 0, pity: 0,
+      fever: 0, feverRolls: 0,
+      daily: opts.daily || null,
       clovers: 1, cloverArmed: false,
       charms: {}, charmOrder: [],
       healsBought: 0,
       dead: false, won: false,
-      stats: { rolls: 0, lit: 0, voids: 0, bestStreak: 0, bestChain: 0, crits: 0, bestGain: 0 },
+      stats: { rolls: 0, lit: 0, voids: 0, bestStreak: 0, bestChain: 0, crits: 0, bestGain: 0, wishes: 0, fevers: 0, lowest: 1, gateLow: 1, flawless: 0 },
     };
   }
 
@@ -249,7 +255,7 @@
     const lv = {
       n: L, cfg, stars, edges, gate: gid, rowIds,
       seals: 0, sealsNeed: cfg.seals || 1,
-      gatePity: 0, rolls: 0, queue: [],
+      gatePity: 0, rolls: 0, fails: 0, wishes: 0, queue: [],
       shield: 0, rerolls: 0,
       thunder: cfg.boss === 'thunder' ? { every: 4, count: 0, target: null } : null,
       fog: cfg.boss === 'fog',
@@ -285,9 +291,13 @@
   }
   function oddsOf(run, lv, s, noTemp) {
     const m = mods(run);
-    let p = rawOdds(run, lv, s, m);
-    if (!noTemp) p += run.pity + Math.min(0.15, m.momentum * run.streak);
-    return clamp(p, FLOOR, 1);
+    const p = rawOdds(run, lv, s, m);
+    const solid = clamp(p, FLOOR, 1);
+    if (noTemp) return solid;
+    // phần cộng tạm thời (Thời Vận, bảo vật) không bao giờ đẩy lên đúng 100%:
+    // con số 100% chỉ dành cho sao thật sự chắc thắng, tức là sao sẽ tự bùng cháy
+    const temp = run.pity + Math.min(0.15, m.momentum * run.streak) + (run.feverRolls > 0 ? FEVER_ODDS : 0);
+    return solid >= 1 ? 1 : Math.min(0.99, clamp(p + temp, FLOOR, 1));
   }
 
   function addHeat(run, lv, n, amt, depth) {
@@ -325,6 +335,7 @@
     if (s.type === 'cursed') v *= 8;
     if (ctx.manual && ctx.p <= 0.30) v *= m.bold;
     if (ctx.crit) v *= 3;
+    if (run.feverRolls > 0) v *= FEVER_PEARL;
     v *= streakMult(run);
     v *= m.pearl;
     return Math.max(1, Math.round(v));
@@ -355,6 +366,8 @@
     run.streak++;
     run.stats.lit++;
     if (run.streak > run.stats.bestStreak) run.stats.bestStreak = run.streak;
+    if (run.feverRolls <= 0) run.fever = Math.min(FEVER_MAX, run.fever + 1);
+    if (ctx.manual && ctx.p < run.stats.lowest) run.stats.lowest = ctx.p;
     const crit = !!ctx.manual && run.rng() < m.crit;
     if (crit) run.stats.crits++;
     const g = reward(run, s, { p: ctx.p, manual: ctx.manual, crit });
@@ -364,6 +377,7 @@
       t: 'lit', id: s.id, gain: g, crit, streak: run.streak, mult: streakMult(run),
       depth: ctx.depth, via: ctx.via || (ctx.manual ? 'manual' : 'cascade'),
       type: s.type, pearls: run.pearls, n: chain.n, bold: !!ctx.manual && ctx.p <= 0.30,
+      fever: run.fever, p: ctx.p,
     });
 
     if (s.type === 'life') heal(run, 1, ev, s.id);
@@ -473,6 +487,7 @@
       }
     }
     lv.rolls++; run.stats.rolls++;
+    const inFever = run.feverRolls > 0;
 
     let p, u, success, rescued, tries = 0;
     for (;;) {
@@ -480,7 +495,7 @@
       u = run.rng();
       success = u < p; rescued = false;
       if (!success && m.rescue > 0 && u < p + m.rescue) { success = true; rescued = true; }
-      ev.push({ t: 'roll', id, p, u, success, rescued, rescue: m.rescue, again: tries > 0, gate: s.type === 'gate' });
+      ev.push({ t: 'roll', id, p, u, success, rescued, rescue: m.rescue, again: tries > 0, gate: s.type === 'gate', fever: inFever });
       if (success) break;
       if (lv.rerolls > 0) { lv.rerolls--; tries++; ev.push({ t: 'second', id, left: lv.rerolls }); continue; }
       break;
@@ -494,6 +509,8 @@
     } else {
       run.streak = 0;
       run.pity = m.pity;
+      lv.fails++;
+      if (!inFever) run.fever = Math.max(0, run.fever - 2);
       if (s.type === 'gate') {
         lv.gatePity += GATE_PITY;
         ev.push({ t: 'gateFail', id, p: oddsOf(run, lv, s, true) });
@@ -540,6 +557,10 @@
       }
     }
 
+    if (inFever) {
+      run.feverRolls--;
+      if (run.feverRolls <= 0) { run.feverRolls = 0; ev.push({ t: 'feverEnd' }); }
+    }
     ev.push({ t: 'sync' });
     return ev;
   }
@@ -548,6 +569,8 @@
     lv.seals++;
     run.streak++;
     if (run.streak > run.stats.bestStreak) run.stats.bestStreak = run.streak;
+    if (run.feverRolls <= 0) run.fever = Math.min(FEVER_MAX, run.fever + 1);
+    if (p < run.stats.gateLow) run.stats.gateLow = p;
     const g = reward(run, s, { p, manual: true, crit: false });
     gain(run, lv, g);
     if (lv.seals < lv.sealsNeed) {
@@ -562,11 +585,62 @@
     } else {
       s.state = 'lit';
       lv.done = true;
+      if (lv.fails === 0) run.stats.flawless++;
       const bonus = 15 * run.level;
       gain(run, lv, bonus);
       ev.push({ t: 'gateOpen', id: s.id, gain: g, bonus, pearls: run.pearls, streak: run.streak, mult: streakMult(run), n: lv.seals, need: lv.sealsNeed });
       if (run.level >= HEAVENS.length) run.won = true;
     }
+  }
+
+  /* ---------- Thời Vận: nạp đầy bằng cách thắp sao, người chơi tự chọn lúc tung ---------- */
+  function feverReady(run) { return run.fever >= FEVER_MAX && run.feverRolls <= 0 && !run.dead; }
+  function activateFever(run) {
+    if (!feverReady(run)) return false;
+    run.fever = 0;
+    run.feverRolls = FEVER_ROLLS;
+    run.stats.fevers++;
+    return true;
+  }
+
+  /* ---------- Sao băng ước nguyện: bắt được thì nhận một điều may ngẫu nhiên ---------- */
+  function wish(run, lv) {
+    const ev = [];
+    if (!lv || lv.done || run.dead) return ev;
+    const m = mods(run);
+    run.stats.wishes++; lv.wishes++;
+    const r = run.rng();
+    if (r < 0.38) {
+      const g = Math.round((12 + 7 * run.level) * (1 + run.rng()) * m.pearl);
+      gain(run, lv, g);
+      ev.push({ t: 'wish', k: 'pearls', gain: g, pearls: run.pearls });
+    } else if (r < 0.62) {
+      const amt = 0.06, ids = [];
+      for (const n of lv.stars) if (n.state === 'dormant') { addHeat(run, lv, n, amt, 0); ids.push(n.id); }
+      ev.push({ t: 'wish', k: 'rain', amt, ids });
+      const chain = { n: 0, pearls: 0 };
+      cascade(run, lv, ev, chain);
+      closeChain(run, ev, chain);
+    } else if (r < 0.78) {
+      run.clovers++;
+      ev.push({ t: 'wish', k: 'clover', n: run.clovers });
+    } else if (r < 0.92 || run.hp >= run.maxHp) {
+      if (run.feverRolls <= 0) run.fever = Math.min(FEVER_MAX, run.fever + 4);
+      ev.push({ t: 'wish', k: 'fever', fever: run.fever });
+    } else {
+      ev.push({ t: 'wish', k: 'life' });
+      heal(run, 1, ev, null);
+    }
+    ev.push({ t: 'sync' });
+    return ev;
+  }
+
+  // hạt giống cố định theo ngày: hôm nay ai cũng gặp cùng những chòm sao
+  function dailySeed(dateStr) {
+    let h = 2166136261;
+    const str = 'ngan-ha-vu-mon:' + dateStr;
+    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
   }
 
   function toggleClover(run) {
@@ -686,11 +760,12 @@
   }
 
   const Core = {
-    FLOOR, CLOVER, GATE_SPREAD, GATE_PITY, START_HP,
+    FLOOR, CLOVER, GATE_SPREAD, GATE_PITY, START_HP, FEVER_MAX, FEVER_ROLLS, FEVER_ODDS, FEVER_PEARL,
     HEAVENS, STAR_TYPES, CHARMS, CHARM_BY_ID, RARITY,
     mulberry32, clamp, lerp,
     newRun, mods, streakMult, addCharm, availableCharms,
     genLevel, nextLevel, oddsOf, roll, preview, toggleClover,
+    feverReady, activateFever, wish, dailySeed,
     genShop, pickBoon, rerollBoons, buyHeal, buyClover, drawStick, inflation,
   };
 

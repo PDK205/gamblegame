@@ -183,6 +183,30 @@
     },
     roar() { if (!ok()) return; const t = now(); tone('sawtooth', 70, t, 1.6, 0.16, { to: 130, a: 0.5, rev: 0.7 }); noise(t, 1.6, 0.25, 'bandpass', 200, 1400, 1.2, 0.8); },
 
+    feverReady() { if (!ok()) return; const t = now(); bell(10, 0.7, t); bell(14, 0.8, t + 0.1); },
+    fever() {
+      if (!ok()) return; const t = now();
+      for (let i = 0; i < 10; i++) tone('triangle', hz(i * 2), t + i * 0.035, 0.5, 0.09, { rev: 0.7 });
+      [10, 12, 14, 17].forEach((s) => bell(s, 0.7, t + 0.36));
+      tone('sine', 55, t, 1.4, 0.35, { to: 110, a: 0.25, rev: 0.3 });
+      noise(t, 1.1, 0.14, 'bandpass', 600, 9000, 0.8, 0.7);
+    },
+    feverEnd() { if (!ok()) return; const t = now(); tone('sine', 660, t, 0.6, 0.08, { to: 220, rev: 0.7 }); },
+    wishAppear() { if (!ok()) return; const t = now(); [17, 19, 21].forEach((s, i) => tone('sine', hz(s), t + i * 0.07, 0.5, 0.05, { rev: 0.9 })); },
+    wish() {
+      if (!ok()) return; const t = now();
+      for (let i = 0; i < 8; i++) tone('sine', hz(8 + i * 2), t + i * 0.04, 0.45, 0.075, { rev: 0.9 });
+      noise(t, 0.5, 0.07, 'highpass', 5000, 9000, 0.7, 0.6);
+    },
+    achieve() { if (!ok()) return; const t = now(); [7, 9, 12, 14].forEach((s, i) => bell(s, 0.65, t + i * 0.09)); tone('triangle', hz(5, 110), t + 0.3, 1.2, 0.07, { a: 0.1, rev: 0.9 }); },
+    evolve() {
+      if (!ok()) return; const t = now();
+      tone('sawtooth', 82, t, 1.1, 0.1, { to: 165, a: 0.4, rev: 0.7 });
+      noise(t, 1.0, 0.16, 'bandpass', 300, 5000, 1, 0.7);
+      [5, 7, 10, 12, 14].forEach((s, i) => bell(s, 0.7, t + 0.5 + i * 0.07));
+    },
+    chime() { if (!ok()) return; const t = now(); const s = 8 + Math.floor(Math.random() * 10); tone('sine', hz(s), t, 2.2, 0.022, { a: 0.02, rev: 1 }); if (Math.random() < 0.35) tone('sine', hz(s + 2), t + 0.28, 2, 0.016, { a: 0.02, rev: 1 }); },
+
     /* tiếng nền mơ màng, đổi giọng theo tầng trời */
     mood(level) {
       if (!ac) return;

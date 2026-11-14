@@ -11,9 +11,13 @@ Trò chơi may rủi một người chơi, chạy thẳng trên trình duyệt. 
 - Thắp **Thiên Môn** ở đỉnh chòm sao để lên tầng. Ở lại vét thêm ngọc hay đi ngay là lựa chọn của bạn.
 - Sau mỗi tầng, chọn một trong ba bảo vật rồi tiêu ngọc ở **Chợ Trời**: hồi ❤, mua cỏ bốn lá, hoặc rút quẻ cầu may.
 - Tầng 3, 6 và 9 là thiên kiếp: sét đánh may rủi, sương che tỉ lệ, và ba ấn phong Vũ Môn.
+- **Thời Vận:** mỗi sao thắp được nạp thêm cho viên ngọc ở góc dưới. Đầy thì bấm để tung: 3 lượt kế tiếp cộng 15% tỉ lệ và ngọc nhân đôi. Chọn lúc tung là quyết định của bạn.
+- **Sao băng** thỉnh thoảng bay ngang trời. Chạm trúng thì nhận một điều ước ngẫu nhiên: ngọc, mưa vận cho cả chòm sao, cỏ bốn lá, nạp Thời Vận hoặc hồi ❤.
 - Phá đảo xong sẽ mở **Kiếp** kế tiếp với tỉ lệ khắt khe hơn.
+- **Quẻ hôm nay** là một lượt riêng dùng hạt giống theo ngày: hôm đó ai chơi cũng gặp cùng những chòm sao, kết thúc thì nhận một lời quẻ.
+- Có 14 **thành tựu** để sưu tầm, lưu ngay trên trình duyệt.
 
-Điều khiển: chạm hoặc bấm chuột vào ngôi sao. Giữ ngón tay (hoặc rê chuột) trên một ngôi sao để xem chi tiết.
+Điều khiển: chạm hoặc bấm chuột vào ngôi sao. Giữ ngón tay (hoặc rê chuột) trên một ngôi sao để xem chi tiết. Đang quay mà muốn nhanh hơn thì chạm màn hình để tua.
 
 ## Chạy
 
@@ -47,4 +51,4 @@ node tools/sim.js 4000 2      # tương tự ở kiếp 3
 node tools/build.js           # tạo dist/ngan-ha-vu-mon.html
 ```
 
-Kết quả quay sao là thật: góc dừng của cá chép được rút ngẫu nhiên đều trên cả vòng tròn, nên tỉ lệ hiển thị đúng bằng tỉ lệ thắng.
+Kết quả quay sao là thật: góc dừng của cá chép được rút ngẫu nhiên đều trên cả vòng tròn, nên tỉ lệ hiển thị đúng bằng tỉ lệ thắng. Con số 100% chỉ hiện khi ngôi sao chắc chắn sáng; các khoản cộng tạm thời dừng ở 99%.

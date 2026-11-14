@@ -38,13 +38,22 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><circle cx="8.2" cy="8.2" r="4.4"/><circle cx="15.8" cy="8.2" r="4.4"/><circle cx="8.2" cy="15.8" r="4.4"/><circle cx="15.8" cy="15.8" r="4.4"/></g><path d="M12 12l6.5 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
       <b id="clovers">1</b>
     </button>
+    <button id="btn-fever" class="fever-btn" type="button" aria-label="Thời Vận: đang nạp">
+      <svg viewBox="0 0 60 60" aria-hidden="true"><circle class="fv-track" cx="30" cy="30" r="26"/><circle id="fever-arc" class="fv-arc" cx="30" cy="30" r="26"/></svg>
+      <i class="fv-orb"></i>
+      <b id="fever-n"></b>
+    </button>
     <div id="charms" class="charms" aria-label="Bảo vật đang có"></div>
-    <div class="tools">
-      <button id="btn-speed" class="tool" type="button" aria-pressed="false" aria-label="Quay nhanh">»</button>
-      <button id="btn-sound" class="tool" type="button" aria-pressed="true" aria-label="Âm thanh">♪</button>
-      <button id="btn-help" class="tool" type="button" aria-label="Cách chơi">?</button>
-    </div>
+    <button id="btn-menu" class="tool" type="button" aria-expanded="false" aria-controls="menu" aria-label="Tuỳ chọn">≡</button>
   </footer>
+
+  <div id="menu" class="menu" hidden>
+    <button id="btn-speed" class="menu-item" type="button" aria-pressed="false">Quay nhanh</button>
+    <button id="btn-sound" class="menu-item" type="button" aria-pressed="true">Âm thanh</button>
+    <button id="btn-help" class="menu-item" type="button">Cách chơi</button>
+    <button id="btn-ach2" class="menu-item" type="button">Thành tựu</button>
+    <button id="btn-quit" class="menu-item danger" type="button">Bỏ lượt này</button>
+  </div>
 
   <!-- Màn đầu -->
   <section id="scr-title" class="screen show" aria-labelledby="logo">
@@ -56,6 +65,10 @@
       <div class="actions">
         <button id="btn-start" class="btn primary" type="button">Thả cá chép</button>
         <button id="btn-how" class="btn ghost" type="button">Cách chơi</button>
+      </div>
+      <div class="extras">
+        <button id="btn-daily" class="chip" type="button">Quẻ hôm nay</button>
+        <button id="btn-ach" class="chip" type="button">Thành tựu</button>
       </div>
       <p id="record" class="record"></p>
     </div>
@@ -73,6 +86,7 @@
         <li><b>Liều thì ăn nhiều.</b> Tỉ lệ càng thấp, ngọc càng nhiều. Thắng liên tiếp làm hệ số chuỗi tăng dần.</li>
         <li><b>Thắp Thiên Môn ở đỉnh để lên tầng.</b> Ở lại vét thêm ngọc hay đi ngay là tùy bạn. Qua đủ 9 tầng, cá chép hóa rồng.</li>
       </ol>
+      <p class="rule-extra"><b>Thời Vận.</b> Mỗi sao thắp được nạp thêm cho viên ngọc ở góc dưới. Đầy thì bấm để tung: 3 lượt kế tiếp cộng 15% tỉ lệ và ngọc nhân đôi. <b>Sao băng</b> thỉnh thoảng bay ngang trời, chạm trúng là được một điều ước.</p>
       <ul class="legend">
         <li><i class="ic ic-fortune"></i><span><b>Sao Tài Lộc</b> ngọc ×4</span></li>
         <li><i class="ic ic-life"></i><span><b>Sao Sinh</b> hồi 1 ❤</span></li>
@@ -81,7 +95,7 @@
         <li><i class="ic ic-mystery">?</i><span><b>Sao Bí Ẩn</b> quà ngẫu nhiên</span></li>
         <li><i class="ic ic-cursed"></i><span><b>Hung Tinh</b> ngọc ×8, trượt mất 2 ❤</span></li>
       </ul>
-      <p class="fine">Giữ ngón tay trên một ngôi sao để xem chi tiết. Cỏ bốn lá ở góc dưới trái cộng thẳng 30% cho ngôi sao bạn chạm kế tiếp.</p>
+      <p class="fine">Giữ ngón tay trên một ngôi sao để xem chi tiết. Cỏ bốn lá ở góc dưới trái cộng thẳng 30% cho ngôi sao bạn chạm kế tiếp. Đang quay mà sốt ruột thì chạm màn hình để tua nhanh. Quẻ hôm nay là một lượt riêng: mỗi ngày một bộ chòm sao cố định, ai chơi cũng gặp như nhau.</p>
       <div class="actions"><button id="btn-help-ok" class="btn primary" type="button">Đã hiểu</button></div>
     </div>
   </section>
@@ -109,6 +123,16 @@
     </div>
   </section>
 
+  <!-- Thành tựu -->
+  <section id="scr-ach" class="screen dim" aria-labelledby="ach-h">
+    <div class="panel ach">
+      <p id="ach-count" class="eyebrow">Sổ vận</p>
+      <h2 id="ach-h">Thành tựu</h2>
+      <ul id="ach-list" class="ach-list"></ul>
+      <div class="actions"><button id="btn-ach-ok" class="btn primary" type="button">Đóng</button></div>
+    </div>
+  </section>
+
   <!-- Kết thúc lượt -->
   <section id="scr-end" class="screen dim" aria-labelledby="end-title">
     <div class="panel end">
@@ -117,9 +141,11 @@
       <p id="end-sub" class="end-sub"></p>
       <dl id="end-stats" class="stats"></dl>
       <div id="end-charms" class="charms end-charms"></div>
+      <p id="end-fortune" class="fortune" hidden></p>
       <div class="actions">
         <button id="btn-again" class="btn primary" type="button">Thử vận lần nữa</button>
         <button id="btn-home" class="btn ghost" type="button">Về màn đầu</button>
+        <button id="btn-share" class="btn tiny" type="button" hidden>Sao chép kết quả</button>
       </div>
     </div>
   </section>

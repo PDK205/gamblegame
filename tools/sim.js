@@ -25,7 +25,11 @@ function playLevel(run, lv, greedy) {
     else if (!greedy && run.hp <= 1 && pg >= bp) target = gate;
     else target = best;
     if (target === gate && pg < 0.8 && run.clovers > 0) Core.toggleClover(run);
+    // tung Thời Vận khi sắp thử cổng, hoặc khi mọi sao còn lại đều khó
+    if (Core.feverReady(run) && (target === gate || Core.oddsOf(run, lv, target) < 0.72)) Core.activateFever(run);
     const ev = Core.roll(run, lv, target.id);
+    // người chơi bắt được khoảng hai phần ba số sao băng
+    if (!lv.done && !run.dead && lv.wishes < 2 && (lv.rolls === 3 || lv.rolls === 9) && simRng() < 0.66) Core.wish(run, lv);
     T.rolls[run.level]++;
     for (const e of ev) {
       if (e.t === 'roll' && !e.success) T.fails[run.level]++;
@@ -36,6 +40,7 @@ function playLevel(run, lv, greedy) {
   T.left[run.level] += lv.stars.filter((s) => s.state === 'dormant' && s.type !== 'gate').length;
   T.n[run.level]++;
 }
+const simRng = Core.mulberry32(12345);
 const T = { rolls: [], fails: [], casc: [], dmg: [], left: [], n: [] };
 function resetT() { for (const k in T) T[k] = new Array(11).fill(0); }
 

@@ -72,6 +72,21 @@
     b.classList.toggle('empty', n <= 0);
     b.setAttribute('aria-pressed', armed ? 'true' : 'false');
   };
+  let lastFever = -1;
+  UI.setFever = function (fever, max, rolls) {
+    const b = $('btn-fever');
+    const ready = rolls <= 0 && fever >= max;
+    b.style.setProperty('--fill', (rolls > 0 ? 1 : Math.min(1, fever / max)).toFixed(3));
+    b.classList.toggle('ready', ready);
+    b.classList.toggle('on', rolls > 0);
+    $('fever-n').textContent = rolls > 0 ? rolls : '';
+    b.setAttribute('aria-label', rolls > 0 ? 'Thời Vận đang chạy, còn ' + rolls + ' lượt'
+      : ready ? 'Thời Vận đã đầy: bấm để tung' : 'Thời Vận: đã nạp ' + fever + ' trên ' + max);
+    if (lastFever >= 0 && fever > lastFever && rolls <= 0) retrigger(b, 'bump');
+    lastFever = fever;
+    $('vignette').classList.toggle('fever', rolls > 0);
+  };
+
   UI.setCharms = function (run, id, fresh) {
     const el = $(id);
     el.innerHTML = run.charmOrder.map((cid) => {
@@ -94,9 +109,31 @@
     const el = $('hint');
     clearTimeout(hintTimer);
     if (!text) { el.classList.remove('show'); return; }
+    el.classList.remove('gold');
     el.textContent = text;
     el.classList.add('show');
     hintTimer = setTimeout(() => el.classList.remove('show'), ms || 5200);
+  };
+  // thông báo nổi bật (thành tựu, lột xác): cùng chỗ với lời nhắc nhưng viền vàng
+  UI.toast = function (html, ms) {
+    const el = $('hint');
+    clearTimeout(hintTimer);
+    el.classList.add('gold');
+    el.innerHTML = html;
+    el.classList.add('show');
+    hintTimer = setTimeout(() => el.classList.remove('show'), ms || 3600);
+  };
+  UI.menu = function (open) {
+    $('menu').hidden = !open;
+    $('btn-menu').setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
+  UI.achievements = function (defs, got) {
+    let n = 0;
+    $('ach-list').innerHTML = defs.map((a) => {
+      const ok = !!got[a.id]; if (ok) n++;
+      return '<li class="' + (ok ? 'got' : '') + '"><i class="a-ic">' + a.icon + '</i><div><b>' + esc(a.name) + '</b><span>' + esc(a.desc) + '</span></div></li>';
+    }).join('');
+    $('ach-count').textContent = 'Sổ vận · ' + n + '/' + defs.length;
   };
   UI.tip = function (html, x, y) {
     const el = $('tip');
@@ -114,7 +151,9 @@
   UI.hurt = () => retrigger($('vignette'), 'hurt');
 
   /* ---------- màn đầu ---------- */
-  UI.title = function (save, kiep, onKiep) {
+  UI.title = function (save, kiep, onKiep, extra) {
+    $('btn-daily').innerHTML = 'Quẻ hôm nay <b>' + esc(extra.daily) + '</b>';
+    $('btn-ach').innerHTML = 'Thành tựu <b>' + extra.achGot + '/' + extra.achTotal + '</b>';
     const rec = $('record');
     if (save.runs > 0) {
       rec.innerHTML = 'Kỷ lục: tầng <b>' + Math.max(1, save.best) + '</b>/9 · <b>' + fmt(save.bestScore) + '</b> ngọc' +
@@ -190,6 +229,11 @@
     $('end-sub').textContent = o.sub;
     $('end-stats').innerHTML = o.stats.map((s) => '<div><dt>' + esc(s[0]) + '</dt><dd>' + esc(s[1]) + '</dd></div>').join('');
     UI.setCharms(o.run, 'end-charms');
+    const f = $('end-fortune');
+    f.hidden = !o.fortune;
+    if (o.fortune) f.innerHTML = o.fortune;
+    $('btn-share').hidden = !o.share;
+    $('btn-share').textContent = 'Sao chép kết quả';
     $('btn-again').textContent = o.again;
     UI.show('scr-end');
   };
