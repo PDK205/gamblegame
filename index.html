@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#05060f">
-<meta name="description" content="Cá chép vượt chín tầng trời hóa rồng. Thắp sao bằng vận may, may mắn lây lan thành phản ứng dây chuyền.">
+<meta name="theme-color" content="#04070d">
+<meta name="description" content="Cá chép vượt chín tầng trời hóa rồng. Thắp hoa đăng bằng vận may, may mắn lây lan thành phản ứng dây chuyền.">
 <title>Ngân Hà Vũ Môn</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Cormorant+SC:wght@600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Yeseva+One&display=swap">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -58,19 +58,24 @@
   <!-- Màn đầu -->
   <section id="scr-title" class="screen show" aria-labelledby="logo">
     <div class="title-wrap">
-      <p class="eyebrow">Cá chép vượt chín tầng trời</p>
-      <h1 id="logo" class="logo"><span class="logo-a">Ngân Hà</span><span class="logo-b">Vũ Môn</span></h1>
-      <p class="tagline">Thắp sao bằng vận may. May mắn lây lan thành dây chuyền. Qua đủ chín tầng, cá chép hóa rồng.</p>
-      <div id="kiep-row" class="kiep-row" hidden></div>
-      <div class="actions">
-        <button id="btn-start" class="btn primary" type="button">Thả cá chép</button>
-        <button id="btn-how" class="btn ghost" type="button">Cách chơi</button>
+      <div class="title-top">
+        <p class="eyebrow">Cá chép vượt chín tầng trời</p>
+        <h1 id="logo" class="logo"><span class="logo-a">Ngân Hà</span><span class="logo-b">Vũ Môn</span></h1>
+        <p class="tagline">Thắp hoa đăng bằng vận may. May mắn lây lan thành dây chuyền. Qua đủ chín tầng, cá chép hóa rồng.</p>
       </div>
-      <div class="extras">
-        <button id="btn-daily" class="chip" type="button">Quẻ hôm nay</button>
-        <button id="btn-ach" class="chip" type="button">Thành tựu</button>
+      <div class="title-bottom">
+        <div id="kiep-row" class="kiep-row" hidden></div>
+        <div class="actions">
+          <button id="btn-start" class="btn primary" type="button">Thả cá chép</button>
+          <button id="btn-how" class="btn ghost" type="button">Cách chơi</button>
+        </div>
+        <div class="extras">
+          <button id="btn-daily" class="chip" type="button">Quẻ hôm nay</button>
+          <button id="btn-koi" class="chip" type="button">Bể cá</button>
+          <button id="btn-ach" class="chip" type="button">Thành tựu</button>
+        </div>
+        <p id="record" class="record"></p>
       </div>
-      <p id="record" class="record"></p>
     </div>
   </section>
 
@@ -80,9 +85,9 @@
       <p class="eyebrow">Luật trời</p>
       <h2 id="help-h">Cách chơi</h2>
       <ol class="rules">
-        <li><b>Chạm một ngôi sao để thử vận.</b> Cá chép bơi vòng quanh rồi dừng lại. Dừng trong cung sáng thì sao bừng cháy.</li>
-        <li><b>May mắn lây lan.</b> Sao sáng cộng tỉ lệ cho các sao kề bên. Sao nào chạm 100% sẽ tự bùng cháy và kéo theo cả dây chuyền.</li>
-        <li><b>Trượt thì sao sụp thành hố đen.</b> Hố đen hút bớt vận của sao kề bên và bạn mất 1 ❤. Hết ❤ là hết lượt.</li>
+        <li><b>Chạm một ngọn hoa đăng để thử vận.</b> Mỗi ngọn đèn là một ngôi sao. Cá chép bơi vòng quanh rồi dừng lại: dừng trong cung sáng thì đèn bừng cháy.</li>
+        <li><b>May mắn lây lan.</b> Đèn đã thắp cộng tỉ lệ cho các đèn kề bên. Ngọn nào chạm 100% sẽ tự bùng cháy và kéo theo cả dây chuyền.</li>
+        <li><b>Trượt thì đèn chìm thành xoáy nước.</b> Xoáy nước hút bớt vận của đèn kề bên và bạn mất 1 ❤. Hết ❤ là hết lượt.</li>
         <li><b>Liều thì ăn nhiều.</b> Tỉ lệ càng thấp, ngọc càng nhiều. Thắng liên tiếp làm hệ số chuỗi tăng dần.</li>
         <li><b>Thắp Thiên Môn ở đỉnh để lên tầng.</b> Ở lại vét thêm ngọc hay đi ngay là tùy bạn. Qua đủ 9 tầng, cá chép hóa rồng.</li>
       </ol>
@@ -95,7 +100,7 @@
         <li><i class="ic ic-mystery">?</i><span><b>Sao Bí Ẩn</b> quà ngẫu nhiên</span></li>
         <li><i class="ic ic-cursed"></i><span><b>Hung Tinh</b> ngọc ×8, trượt mất 2 ❤</span></li>
       </ul>
-      <p class="fine">Giữ ngón tay trên một ngôi sao để xem chi tiết. Cỏ bốn lá ở góc dưới trái cộng thẳng 30% cho ngôi sao bạn chạm kế tiếp. Đang quay mà sốt ruột thì chạm màn hình để tua nhanh. Quẻ hôm nay là một lượt riêng: mỗi ngày một bộ chòm sao cố định, ai chơi cũng gặp như nhau.</p>
+      <p class="fine">Giữ ngón tay trên một ngôi sao để xem chi tiết. Cỏ bốn lá ở góc dưới trái cộng thẳng 30% cho ngôi sao bạn chạm kế tiếp. Đang quay mà sốt ruột thì chạm màn hình để tua nhanh. Kéo ngón tay trên mặt nước để xoay góc nhìn, chạm nhẹ để gọi cá chép bơi tới. Quẻ hôm nay là một lượt riêng: mỗi ngày một bộ chòm sao cố định, ai chơi cũng gặp như nhau.</p>
       <div class="actions"><button id="btn-help-ok" class="btn primary" type="button">Đã hiểu</button></div>
     </div>
   </section>
@@ -133,6 +138,16 @@
     </div>
   </section>
 
+  <!-- Bể cá -->
+  <section id="scr-koi" class="screen dim" aria-labelledby="koi-h">
+    <div class="panel koi">
+      <p id="koi-count" class="eyebrow">Bể cá</p>
+      <h2 id="koi-h">Chọn cá chép</h2>
+      <div id="koi-list" class="koi-list"></div>
+      <div class="actions"><button id="btn-koi-ok" class="btn primary" type="button">Xong</button></div>
+    </div>
+  </section>
+
   <!-- Kết thúc lượt -->
   <section id="scr-end" class="screen dim" aria-labelledby="end-title">
     <div class="panel end">
@@ -151,8 +166,10 @@
   </section>
 </div>
 <!--GAME:END-->
+<script src="vendor/three.min.js"></script>
 <script src="js/core.js"></script>
 <script src="js/audio.js"></script>
+<script src="js/scene3d.js"></script>
 <script src="js/gfx.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>

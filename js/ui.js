@@ -127,6 +127,16 @@
     $('menu').hidden = !open;
     $('btn-menu').setAttribute('aria-expanded', open ? 'true' : 'false');
   };
+  UI.koiList = function (rows, current) {
+    let n = 0;
+    $('koi-list').innerHTML = rows.map((r) => {
+      if (r.open) n++;
+      return '<button type="button" class="koi-row' + (r.open ? '' : ' locked') + (r.id === current ? ' on' : '') + '" data-id="' + r.id + '"' + (r.open ? '' : ' disabled') + '>' +
+        '<i class="swatch" style="background:radial-gradient(circle at 34% 36%,' + r.a + ' 0 24%,transparent 25%),radial-gradient(circle at 68% 62%,' + r.b + ' 0 20%,transparent 21%),' + r.body + '"></i>' +
+        '<div><b>' + esc(r.name) + (r.id === current ? ' <em>· đang chọn</em>' : '') + '</b><span>' + esc(r.open ? r.perk : 'Mở khoá: ' + r.need) + '</span></div></button>';
+    }).join('');
+    $('koi-count').textContent = 'Bể cá · ' + n + '/' + rows.length;
+  };
   UI.achievements = function (defs, got) {
     let n = 0;
     $('ach-list').innerHTML = defs.map((a) => {
@@ -153,6 +163,7 @@
   /* ---------- màn đầu ---------- */
   UI.title = function (save, kiep, onKiep, extra) {
     $('btn-daily').innerHTML = 'Quẻ hôm nay <b>' + esc(extra.daily) + '</b>';
+    $('btn-koi').innerHTML = 'Bể cá <b>' + esc(extra.koi) + '</b>';
     $('btn-ach').innerHTML = 'Thành tựu <b>' + extra.achGot + '/' + extra.achTotal + '</b>';
     const rec = $('record');
     if (save.runs > 0) {

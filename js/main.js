@@ -5,12 +5,12 @@
   'use strict';
 
   const $ = (id) => document.getElementById(id);
-  const G = Gfx, TAU = Math.PI * 2;
+  const G = Gfx, S3 = window.S3, TAU = Math.PI * 2;
   const clamp = Core.clamp, lerp = Core.lerp, ease = G.ease, fmt = UI.fmt;
   const rand = (a, b) => a + Math.random() * (b - a);
 
   const SAVE_KEY = 'ngan-ha-vu-mon.v1';
-  const save = { best: 0, bestScore: 0, wins: 0, runs: 0, kiep: 0, muted: false, fast: false, seen: false, ach: {}, wishTotal: 0, daily: null };
+  const save = { best: 0, bestScore: 0, wins: 0, runs: 0, kiep: 0, muted: false, fast: false, seen: false, ach: {}, wishTotal: 0, daily: null, skin: 'kohaku' };
   function loadSave() {
     try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s && typeof s === 'object') Object.assign(save, s); } catch (e) { /* chơi không lưu cũng được */ }
     if (!save.ach || typeof save.ach !== 'object') save.ach = {};
@@ -28,26 +28,26 @@
 
   /* ---------- thành tựu ---------- */
   const ACH = [
-    { id: 'khaivan', icon: '✨', name: 'Khai Vận', desc: 'Thắp ngôi sao đầu tiên.' },
-    { id: 'daychuyen', icon: '⛓️', name: 'Dây Chuyền', desc: 'Một dây chuyền từ 5 sao trở lên.' },
-    { id: 'thienvan', icon: '🌌', name: 'Thiên Vận', desc: 'Một dây chuyền từ 10 sao trở lên.' },
-    { id: 'lieumang', icon: '🎲', name: 'Liều Mạng', desc: 'Thắp được sao có tỉ lệ từ 15% trở xuống.' },
-    { id: 'daicat', icon: '👁️', name: 'Tam Đại Cát', desc: 'Trúng Đại Cát 3 lần trong một lượt.' },
-    { id: 'batbai', icon: '🛡️', name: 'Bất Bại', desc: 'Vượt một tầng mà không trượt lần nào.' },
-    { id: 'motphat', icon: '⛩️', name: 'Một Phát Ăn Ngay', desc: 'Thắp Thiên Môn khi tỉ lệ từ 25% trở xuống.' },
-    { id: 'thoivan', icon: '🔥', name: 'Thời Tới Cản Không Kịp', desc: 'Tung Thời Vận lần đầu.' },
-    { id: 'uocgi', icon: '🌠', name: 'Ước Gì Được Nấy', desc: 'Bắt được 5 sao băng.' },
-    { id: 'daiphu', icon: '💰', name: 'Đại Phú', desc: 'Giữ 1.000 ngọc trong túi.' },
-    { id: 'loitri', icon: '⚡', name: 'Vượt Lôi Trì', desc: 'Qua tầng 3.' },
-    { id: 'mevu', icon: '🌫️', name: 'Xuyên Mê Vụ', desc: 'Qua tầng 6.' },
-    { id: 'hoarong', icon: '🐉', name: 'Hóa Rồng', desc: 'Phá đảo chín tầng trời.' },
-    { id: 'nghichthien', icon: '👑', name: 'Nghịch Thiên', desc: 'Phá đảo ở Kiếp 3 trở lên.' },
+    { id: 'khaivan', icon: 'Khai', name: 'Khai Vận', desc: 'Thắp ngọn hoa đăng đầu tiên.' },
+    { id: 'daychuyen', icon: 'Chuỗi', name: 'Dây Chuyền', desc: 'Một dây chuyền từ 5 sao trở lên.' },
+    { id: 'thienvan', icon: 'Thiên', name: 'Thiên Vận', desc: 'Một dây chuyền từ 10 sao trở lên.' },
+    { id: 'lieumang', icon: 'Liều', name: 'Liều Mạng', desc: 'Thắp được sao có tỉ lệ từ 15% trở xuống.' },
+    { id: 'daicat', icon: 'Cát', name: 'Tam Đại Cát', desc: 'Trúng Đại Cát 3 lần trong một lượt.' },
+    { id: 'batbai', icon: 'Vững', name: 'Bất Bại', desc: 'Vượt một tầng mà không trượt lần nào.' },
+    { id: 'motphat', icon: 'Một', name: 'Một Phát Ăn Ngay', desc: 'Thắp Thiên Môn khi tỉ lệ từ 25% trở xuống.' },
+    { id: 'thoivan', icon: 'Thời', name: 'Thời Tới Cản Không Kịp', desc: 'Tung Thời Vận lần đầu.' },
+    { id: 'uocgi', icon: 'Ước', name: 'Ước Gì Được Nấy', desc: 'Bắt được 5 sao băng.' },
+    { id: 'daiphu', icon: 'Phú', name: 'Đại Phú', desc: 'Giữ 1.000 ngọc trong túi.' },
+    { id: 'loitri', icon: 'Lôi', name: 'Vượt Lôi Trì', desc: 'Qua tầng 3.' },
+    { id: 'mevu', icon: 'Vụ', name: 'Xuyên Mê Vụ', desc: 'Qua tầng 6.' },
+    { id: 'hoarong', icon: 'Rồng', name: 'Hóa Rồng', desc: 'Phá đảo chín tầng trời.' },
+    { id: 'nghichthien', icon: 'Nghịch', name: 'Nghịch Thiên', desc: 'Phá đảo ở Kiếp 3 trở lên.' },
   ];
   const achQueue = [];
   function showAch() {
     const a = achQueue[0];
     if (!a) return;
-    UI.toast(a.icon + ' Thành tựu mới: <b>' + a.name + '</b>', 3000);
+    UI.toast('Thành tựu mới: <b>' + a.name + '</b>', 3000);
     Sfx.achieve();
     setTimeout(() => { achQueue.shift(); showAch(); }, 3300);
   }
@@ -90,6 +90,22 @@
   }
   const idle = () => { busy = false; G.boost = 1; };
 
+  /* ---------- bể cá: mỗi giống cá chép mở khoá bằng một cột mốc và có một món khởi đầu riêng ---------- */
+  const KOI = [
+    { id: 'kohaku', perk: 'Cá chép khởi đầu. Chỉ có vận may của bạn.', need: '', ok: () => true, give() {} },
+    { id: 'sanke', perk: 'Khởi đầu với 2 cỏ bốn lá.', need: 'qua tầng 3', ok: () => save.best >= 4, give(r) { r.clovers += 1; } },
+    { id: 'asagi', perk: 'Thời Vận nạp sẵn 4 nấc.', need: 'bắt 5 sao băng', ok: () => !!save.ach.uocgi, give(r) { r.fever = 4; } },
+    { id: 'tancho', perk: 'Khởi đầu với bảo vật Giáp Vảy.', need: 'vượt một tầng không trượt lần nào', ok: () => !!save.ach.batbai, give(r) { Core.addCharm(r, 'giapvay'); } },
+    { id: 'ngoc', perk: 'Khởi đầu với 60 ngọc.', need: 'một dây chuyền từ 10 đèn', ok: () => !!save.ach.thienvan, give(r) { r.pearls += 60; } },
+    { id: 'showa', perk: 'Khởi đầu với 6 ❤.', need: 'qua tầng 6', ok: () => save.best >= 7, give(r) { r.maxHp += 1; r.hp += 1; } },
+    { id: 'ogon', perk: 'Khởi đầu với bảo vật Lộc Trời.', need: 'hóa rồng một lần', ok: () => save.wins > 0, give(r) { Core.addCharm(r, 'loctroi'); } },
+    { id: 'hacam', perk: 'Khởi đầu với bảo vật Lật Vận.', need: 'phá đảo ở Kiếp 3', ok: () => !!save.ach.nghichthien, give(r) { Core.addCharm(r, 'latvan'); } },
+  ];
+  const skinId = () => { const k = KOI.find((x) => x.id === save.skin); return k && k.ok() ? k.id : 'kohaku'; };
+  function renderKoi() {
+    UI.koiList(KOI.map((k) => { const d = S3.SKINS[k.id]; return { id: k.id, name: d.name, body: d.body, a: d.a, b: d.b, perk: k.perk, need: k.need, open: k.ok() }; }), skinId());
+  }
+
   /* ---------- bố cục ---------- */
   function relayout() {
     G.resize();
@@ -97,11 +113,17 @@
     let t = 76, b = G.H - 84;
     if (!top.hidden) { t = top.getBoundingClientRect().bottom; b = bot.getBoundingClientRect().top; }
     G.relayout(t, b);
-    if (state === 'title') G.koi.anchor = { x: G.W / 2, y: G.H * 0.78 };
+    if (state === 'title') G.koi.anchor = { x: 0.1, z: S3.D / 2 - 1.6 };
   }
+  // bán kính vành đèn tính theo đơn vị của cảnh 3D
+  const ringW = (s) => (s.type === 'gate' ? 1.0 : S3.ringR);
+  // các góc máy dựng sẵn
+  const camTitle = () => ({ pos: [0.6, 1.5, S3.D / 2 + 8.2], look: [0, 2.6, -S3.D / 2], fov: 42, k: 1 });
+  const camGate = () => ({ pos: [0, 5.2, S3.D / 2 + 5], look: [0, 3.4, -S3.D / 2 - 1], fov: 36, k: 0 });
+  const camSky = () => ({ pos: [0, 1.6, S3.D / 2 + 8], look: [0, 7.5, -2], fov: 50, k: 0 });
 
   const buzz = (ms) => { try { if (navigator.vibrate && !save.muted) navigator.vibrate(ms); } catch (e) { /* không rung cũng không sao */ } };
-  const at = (s) => ({ x: s.x, y: s.y + G.world.oy });
+  const at = (s) => ({ x: s.x, y: s.y });
   const litColor = (type) => (type === 'normal' || type === 'gate' ? 'gold' : G.TYPE_COL[type]);
 
   function syncHUD(instant) {
@@ -181,7 +203,7 @@
   /* cá chép bơi vòng quanh ngôi sao rồi dừng lại: dừng trong cung sáng là thắng */
   async function fxRoll(ev) {
     const s = G.stars[ev.id], koi = G.koi, u = G.unit;
-    const R = G.radius(s), orbit = R + 9 * u;
+    const R = G.radius(s), orbit = ringW(s) + 0.3;
     const c = at(s);
     await koiFree;
     koi.mode = 'manual';
@@ -192,12 +214,12 @@
     let a0;
     if (ev.again) a0 = s.mark;
     else {
-      const sx = koi.x, sy = koi.y;
-      a0 = Math.atan2(sy - c.y, sx - c.x);
-      const ex = c.x + Math.cos(a0) * orbit, ey = c.y + Math.sin(a0) * orbit;
-      const dist = Math.hypot(ex - sx, ey - sy);
+      const sx = koi.x, sz = koi.z;
+      a0 = Math.atan2(sz - s.wz, sx - s.wx);
+      const ex = s.wx + Math.cos(a0) * orbit, ez = s.wz + Math.sin(a0) * orbit;
+      const dist = Math.hypot(ex - sx, ez - sz);
       Sfx.dash();
-      await G.tween(clamp(dist / (1000 * u), 0.1, 0.3), (k) => koi.head(lerp(sx, ex, k), lerp(sy, ey, k)), ease.inOut);
+      await G.tween(clamp(dist / 15, 0.12, 0.42), (k) => koi.head(lerp(sx, ex, k), lerp(sz, ez, k)), ease.inOut);
     }
 
     const final = s.arc + ev.u * TAU;
@@ -207,14 +229,14 @@
     const STEP = Math.PI / 6;
     let lastTick = Math.floor(a0 / STEP), lastBeat = -1;
     s.rolling = true; s.mark = a0;
-    if (ev.fever) G.ring(c.x, c.y, 'gold', R * 3, R, 0.4, 2.5);
+    if (ev.fever) S3.wave(s.wx, s.wz, 'gold', 2.2, 0.7, 0.45);
     if (ev.gate) Sfx.gateRise(T / (G.speed * G.boost));
     await G.tween(T, (k, raw) => {
       const a = a0 + delta * k;
       s.mark = a;
-      koi.head(c.x + Math.cos(a) * orbit, c.y + Math.sin(a) * orbit, a + Math.PI / 2);
+      koi.head(s.wx + Math.cos(a) * orbit, s.wz + Math.sin(a) * orbit, a + Math.PI / 2);
       const tk = Math.floor(a / STEP);
-      if (tk !== lastTick) { lastTick = tk; Sfx.tick(1 - raw); }
+      if (tk !== lastTick) { lastTick = tk; Sfx.tick(1 - raw); if (raw < 0.7) S3.ripple(koi.x, koi.z, 0.28); }
       if (ev.gate && raw > 0.55) { const b = Math.floor((raw - 0.55) / 0.15); if (b !== lastBeat) { lastBeat = b; Sfx.heartbeat(); } }
     }, ev.gate ? ease.outQuart : ease.outCubic);
 
@@ -235,8 +257,7 @@
     UI.banner('Lật Vận', 'Trượt rồi, nhưng trời cho quay lại một lần', 'jade', 1.3);
     Sfx.second();
     UI.setHearts(run.hp, run.maxHp, lv.shield, ev.left);
-    const c = at(s);
-    G.ring(c.x, c.y, 'jade', G.radius(s) * 3, G.radius(s), 0.4, 2.5);
+    S3.wave(s.wx, s.wz, 'jade', 2.2, 0.7, 0.45);
     await G.wait(0.75);
     s.result = 0;
   }
@@ -249,11 +270,15 @@
     const c = at(s);
     lastLitN = ev.n;
     if (ev.via === 'manual') {
-      const a = s.mark, kx = koi.x, ky = koi.y;
+      // cá chép quẫy khỏi mặt nước, vọt qua ngọn đèn rồi lặn xuống phía bên kia
+      const a = s.mark, kx = koi.x, kz = koi.z, rw = ringW(s);
+      const ox = s.wx - Math.cos(a) * (rw + 0.55), oz = s.wz - Math.sin(a) * (rw + 0.55);
       Sfx.dash();
-      await G.tween(0.085, (k) => koi.head(lerp(kx, c.x, k), lerp(ky, c.y, k)), ease.inCubic);
-      const ox = c.x - Math.cos(a) * R * 2.4, oy = c.y - Math.sin(a) * R * 2.4;
-      koiFree = G.tween(0.22, (k) => koi.head(lerp(c.x, ox, k), lerp(c.y, oy, k)), ease.outCubic);
+      S3.splash(kx, kz, 0.9);
+      koi.air = true;
+      await G.tween(0.2, (k) => koi.head(lerp(kx, s.wx, k), lerp(kz, s.wz, k), null, lerp(koi.depth, 1.05, Math.sin(k * Math.PI / 2))));
+      koiFree = G.tween(0.26, (k) => koi.head(lerp(s.wx, ox, k), lerp(s.wz, oz, k), null, lerp(1.05, koi.depth, 1 - Math.cos(k * Math.PI / 2))))
+        .then(() => { koi.air = false; S3.splash(ox, oz, 1.1); });
     } else if (ev.via === 'shoot') {
       const sx = c.x + rand(-140, 140) * u;
       G.streak(sx, -30, c.x, c.y, 0.26, 'sky');
@@ -268,9 +293,10 @@
     s.state = 'lit'; s.litT = G.time; s.rolling = false; s.omen = false; s.clover = false;
     const big = ev.crit || ev.type === 'nova' || ev.type === 'cursed' || ev.type === 'fortune';
     const col = litColor(ev.type);
-    G.burst(c.x, c.y, col, big ? 34 : 16, (big ? 260 : 190) * u, { streak: true, life: 0.65 });
-    G.burst(c.x, c.y, 'white', 6, 70 * u, { life: 0.4, size: 7 });
-    G.ring(c.x, c.y, col, R * 0.6, R * (big ? 5.2 : 3.2), 0.5, 3);
+    G.burst(c.x, c.y, col === 'ice' ? 'gold' : col, big ? 22 : 9, (big ? 240 : 170) * u, { streak: true, life: 0.6, size: 5 });
+    S3.wave(s.wx, s.wz, col, 0.5, big ? 3.4 : 2.3, 0.7);
+    S3.ripple(s.wx, s.wz, big ? 1.6 : 1.1);
+    S3.spray(s.wx, 0.35, s.wz, col, big ? 20 : 8, 2.4, { up: 1.5, life: 0.9, size: 0.14, g: 3.2 });
     G.flashBG('gold', Math.min(0.3, 0.05 + ev.n * 0.018));
     G.shake(Math.min(10, 2 + ev.n * 0.55) + (big ? 3 : 0));
     G.punch(Math.min(0.022, 0.004 + ev.n * 0.0015));
@@ -279,7 +305,7 @@
     G.text(c.x, c.y - R - 8 * u, '+' + fmt(ev.gain), { color: 'gold', size: sz });
     if (ev.crit) {
       G.text(c.x, c.y - R - 30 * u, 'ĐẠI CÁT ×3', { color: 'white', size: 15, dur: 1.4 });
-      G.ring(c.x, c.y, 'white', R, R * 7, 0.7, 4);
+      S3.wave(s.wx, s.wz, 'white', 0.6, 5, 0.9);
       G.flashBG('gold', 0.3);
     } else if (ev.bold && ev.via === 'manual') {
       G.text(c.x, c.y - R - 28 * u, 'LIỀU ĂN NHIỀU!', { color: 'amber', size: 12.5, dur: 1.2 });
@@ -294,7 +320,7 @@
     UI.setPearls(ev.pearls);
     UI.setStreak(ev.streak, ev.mult);
     if (!G.fever) showFever(ev.fever);
-    koi.anchor = { x: c.x, y: c.y + R + 22 * u };
+    koi.anchor = { x: s.wx, z: s.wz + ringW(s) + 0.85 };
   }
 
   // cập nhật viên ngọc Thời Vận trong lúc đang diễn hoạt cảnh
@@ -374,8 +400,8 @@
     const s = G.stars[ev.id], koi = G.koi, u = G.unit;
     const R = G.radius(s), c = at(s);
     if (ev.why === 'fail') {
-      const a = s.mark, kx = koi.x, ky = koi.y;
-      koiFree = G.tween(0.3, (k) => koi.head(kx + Math.cos(a) * 30 * u * k, ky + Math.sin(a) * 30 * u * k), ease.outCubic);
+      const a = s.mark, kx = koi.x, kz = koi.z;
+      koiFree = G.tween(0.3, (k) => koi.head(kx + Math.cos(a) * 1.1 * k, kz + Math.sin(a) * 1.1 * k), ease.outCubic);
       s.shake = 1;
       await G.wait(0.1);
     } else if (ev.why === 'wrath') {
@@ -386,9 +412,11 @@
       await G.wait(0.16);
     }
     s.state = 'void'; s.voidT = G.time; s.rolling = false; s.omen = false; s.clover = false;
-    G.implode(c.x, c.y, 'violet', 30, R * 4.5);
-    G.ring(c.x, c.y, 'violet', R * 4, R * 0.4, 0.45, 2.5);
-    G.ring(c.x, c.y, 'rose', R, R * 4.5, 0.6, 2);
+    G.implode(c.x, c.y, 'violet', 26, R * 4);
+    S3.wave(s.wx, s.wz, 'violet', 2.6, 0.3, 0.5);
+    S3.wave(s.wx, s.wz, 'rose', 0.5, 3, 0.7);
+    S3.ripple(s.wx, s.wz, 1.4);
+    S3.spray(s.wx, 0.2, s.wz, 'violet', 16, 2.2, { up: 1.1, life: 0.7, size: 0.16, g: 4 });
     G.shake(ev.why === 'fail' ? 10 : 7);
     G.flashBG('rose', 0.14);
     if (ev.why !== 'wrath') Sfx.fail();
@@ -404,22 +432,22 @@
     koi.hurt = 1;
     Sfx.hurt();
     G.shake(7);
-    G.text(koi.x, koi.y - 24 * u, '−' + (-ev.d) + ' ❤', { color: 'rose', size: 16, dur: 1.2 });
-    G.burst(koi.x, koi.y, 'rose', 12, 140 * u, { life: 0.5 });
+    G.text(koi.sx, koi.sy - 24 * u, '−' + (-ev.d) + ' ❤', { color: 'rose', size: 16, dur: 1.2 });
+    G.burst(koi.sx, koi.sy, 'rose', 12, 140 * u, { life: 0.5 });
     await G.wait(0.3);
   }
   async function fxShield(ev) {
     const koi = G.koi, u = G.unit;
     UI.setHearts(run.hp, run.maxHp, ev.left, lv.rerolls);
-    G.ring(koi.x, koi.y, 'jade', 10 * u, 70 * u, 0.5, 3);
-    G.burst(koi.x, koi.y, 'jade', 16, 150 * u, { life: 0.5 });
-    G.text(koi.x, koi.y - 24 * u, 'GIÁP VẢY ĐỠ ĐÒN', { color: 'jade', size: 13, dur: 1.2 });
+    S3.wave(koi.x, koi.z, 'jade', 0.3, 2.2, 0.6);
+    G.burst(koi.sx, koi.sy, 'jade', 16, 150 * u, { life: 0.5 });
+    G.text(koi.sx, koi.sy - 24 * u, 'GIÁP VẢY ĐỠ ĐÒN', { color: 'jade', size: 13, dur: 1.2 });
     Sfx.shield();
     await G.wait(0.35);
   }
   function fxHeal(ev) {
     const u = G.unit;
-    const p = ev.id != null ? at(G.stars[ev.id]) : { x: G.koi.x, y: G.koi.y };
+    const p = ev.id != null ? at(G.stars[ev.id]) : { x: G.koi.sx, y: G.koi.sy };
     UI.setHearts(ev.hp, run.maxHp, lv.shield, lv.rerolls);
     if (ev.d > 0) {
       G.text(p.x, p.y - 44 * u, '+' + ev.d + ' ❤', { color: 'rose', size: 16, dur: 1.3, delay: 0.1 });
@@ -439,7 +467,7 @@
     const s = G.stars[ev.id], u = G.unit, R = G.radius(s), c = at(s);
     s.clover = true;
     G.setOdds(ev.id, ev.p);
-    G.ring(c.x, c.y, 'jade', R * 3.4, R, 0.36, 2.5);
+    S3.wave(s.wx, s.wz, 'jade', 2.2, 0.7, 0.4);
     G.burst(c.x, c.y, 'jade', 16, 120 * u, { life: 0.6 });
     G.text(c.x, c.y - R - 12 * u, '+30%', { color: 'jade', size: 15 });
     Sfx.clover();
@@ -450,7 +478,7 @@
   async function fxMystery(ev) {
     const s = G.stars[ev.id], u = G.unit, R = G.radius(s), c = at(s), r = ev.res;
     await G.wait(0.12);
-    G.ring(c.x, c.y, 'violet', R, R * 4.4, 0.6, 3);
+    S3.wave(s.wx, s.wz, 'violet', 0.6, 3, 0.7);
     G.burst(c.x, c.y, 'violet', 24, 210 * u, { streak: true, life: 0.7 });
     let label, col = 'violet', tier = 0;
     if (r.k === 'pearls') {
@@ -479,8 +507,9 @@
 
   function fxNova(ev) {
     const s = G.stars[ev.id], u = G.unit, R = G.radius(s), c = at(s);
-    G.ring(c.x, c.y, 'sky', R, R * 8, 0.75, 5);
-    G.ring(c.x, c.y, 'white', R, R * 5, 0.5, 3);
+    S3.wave(s.wx, s.wz, 'sky', 0.6, 5.5, 0.9);
+    S3.wave(s.wx, s.wz, 'white', 0.6, 3.5, 0.6);
+    S3.ripple(s.wx, s.wz, 2.2);
     G.burst(c.x, c.y, 'sky', 46, 380 * u, { streak: true, life: 0.8 });
     G.flashBG('sky', 0.32);
     G.shake(11); G.punch(0.02);
@@ -506,7 +535,7 @@
       G.burst(G.W / 2, G.H * 0.45, 'gold', Math.min(110, n * 9), 520 * u, { streak: true, life: 1.1, drag: 1.6, g: 160 });
       G.burst(G.W / 2, G.H * 0.45, 'jade', Math.min(40, n * 3), 420 * u, { streak: true, life: 1.1, drag: 1.6, g: 160 });
     }
-    teach('chain', 'Đó là dây chuyền: sao chạm 100% tự bùng cháy và nối dài chuỗi thắng.', 6000);
+    teach('chain', 'Đó là dây chuyền: đèn chạm 100% tự bùng cháy và nối dài chuỗi thắng.', 6000);
     await G.wait(n >= 7 ? 0.75 : 0.4);
   }
 
@@ -536,14 +565,15 @@
     const s = G.stars[ev.id], koi = G.koi, u = G.unit, R = G.radius(s), c = at(s);
     s.rolling = false; s.seals = ev.n; s.pulse = 1;
     Sfx.seal(ev.n);
-    G.ring(c.x, c.y, 'gold', R, R * 6, 0.8, 4);
-    G.ring(c.x, c.y, 'white', R, R * 3.5, 0.5, 3);
+    S3.wave(s.wx, s.wz, 'gold', 1, 6, 0.9);
+    S3.wave(s.wx, s.wz, 'white', 1, 3.5, 0.6);
+    S3.ripple(s.wx, s.wz, 2);
     G.burst(c.x, c.y, 'gold', 46, 320 * u, { streak: true, life: 0.8 });
     G.flashBG('gold', 0.36); G.shake(13); G.punch(0.03);
     UI.banner('Ấn thứ ' + ['nhất', 'hai', 'ba'][ev.n - 1] + ' đã vỡ', 'Còn ' + (ev.need - ev.n) + ' ấn · thiên phạt giáng xuống chòm sao', '', 1.8);
     G.text(c.x, c.y + R + 40 * u, '+' + fmt(ev.gain), { color: 'gold', size: 18 });
     UI.setPearls(ev.pearls); UI.setStreak(ev.streak, ev.mult);
-    koi.anchor = { x: c.x, y: c.y + R + 46 * u };
+    koi.anchor = { x: s.wx, z: s.wz + 2.1 };
     koi.mode = 'wander';
     await G.wait(1.0);
   }
@@ -552,12 +582,13 @@
     s.shake = 1;
     Sfx.gateFail(); buzz(60);
     G.shake(13); G.flashBG('rose', 0.2);
-    G.ring(c.x, c.y, 'rose', R, R * 3.2, 0.55, 3);
+    S3.wave(s.wx, s.wz, 'rose', 1, 3.4, 0.6);
+    S3.ripple(s.wx, s.wz, 1.6);
     G.implode(c.x, c.y, 'rose', 20, R * 3);
     G.text(c.x, c.y + R + 34 * u, 'CỔNG CHƯA MỞ · lần sau +' + Math.round(Core.GATE_PITY * 100) + '%', { color: 'rose', size: 12.5, dur: 1.7, vy: 14 });
-    const kx = koi.x, ky = koi.y;
-    koiFree = G.tween(0.4, (k) => koi.head(lerp(kx, c.x, k * 0.3), lerp(ky, c.y + R + 60 * u, k)), ease.outCubic);
-    koi.anchor = { x: c.x, y: c.y + R + 56 * u };
+    const kx = koi.x, kz = koi.z;
+    koiFree = G.tween(0.4, (k) => koi.head(lerp(kx, s.wx, k * 0.3), lerp(kz, s.wz + 2.4, k)), ease.outCubic);
+    koi.anchor = { x: s.wx, z: s.wz + 2.2 };
     await G.wait(0.3);
     s.rolling = false;
     G.setOdds(ev.id, ev.p);
@@ -570,9 +601,10 @@
     s.rolling = false; s.state = 'lit'; s.litT = G.time; s.seals = ev.n;
     Sfx.gateOpen(); buzz([20, 40, 20, 40, 60]);
     G.tween(1.0, (k) => { s.open = k; }, ease.outCubic);
-    G.ring(c.x, c.y, 'gold', R, R * 9, 1.0, 6);
-    G.ring(c.x, c.y, 'white', R, R * 6, 0.7, 4);
-    G.ring(c.x, c.y, 'sky', R, R * 4, 0.5, 3);
+    S3.wave(s.wx, s.wz, 'gold', 1, 9, 1.1);
+    S3.wave(s.wx, s.wz, 'white', 1, 6, 0.8);
+    S3.wave(s.wx, s.wz, 'sky', 1, 4, 0.6);
+    S3.ripple(s.wx, s.wz, 2.5);
     G.burst(c.x, c.y, 'gold', 90, 480 * u, { streak: true, life: 1.1, drag: 1.8 });
     G.burst(c.x, c.y, 'white', 30, 300 * u, { life: 0.8 });
     G.flashBG('gold', 0.6); G.shake(18); G.punch(0.05);
@@ -581,15 +613,23 @@
     const p = UI.pursePos();
     for (let i = 0; i < 12; i++) G.fly(c.x, c.y, p.x, p.y, 'gold', i % 3 === 0 ? () => { UI.bumpPurse(); Sfx.coin(i); } : null, 0.2 + i * 0.05);
 
-    // cá chép vọt qua cổng
-    koi.mode = 'manual';
-    const kx = koi.x, ky = koi.y;
-    await G.tween(0.34, (k) => koi.head(lerp(kx, c.x, k), lerp(ky, c.y + R * 0.4, k)), ease.inOut);
-    G.burst(c.x, c.y, 'sky', 40, 360 * u, { streak: true, life: 0.8 });
+    // mỗi ngọn hoa đăng đã thắp thả một chiếc đèn trời
+    let nl = 0;
+    for (const t of G.stars) if (t.state === 'lit' && t.type !== 'gate') S3.lift(t.wx, t.wz, 0.25 + (nl++) * 0.07);
+    // cá chép vọt qua cổng rồi ngược dòng thác
+    koi.mode = 'manual'; koi.air = true;
+    const kx = koi.x, kz = koi.z, gz = -S3.D / 2 - 0.9;
+    const shot = camGate(); S3.cine(shot);
+    G.tween(1.3, (k) => { shot.k = k * 0.85; }, ease.inOut);
+    S3.splash(kx, kz, 1.3);
+    await G.tween(0.5, (k) => koi.head(lerp(kx, 0, k), lerp(kz, gz, k), null, lerp(koi.depth, 1.5, Math.sin(k * Math.PI / 2))), ease.inOut);
+    G.burst(koi.sx, koi.sy, 'sky', 40, 360 * u, { streak: true, life: 0.8 });
     Sfx.dash();
-    const y0 = c.y + R * 0.4;
-    await G.tween(0.62, (k) => koi.head(c.x + Math.sin(k * 5) * 8 * u, lerp(y0, -160 * u, k), -Math.PI / 2), ease.inCubic);
-    await G.wait(0.55);
+    await G.tween(0.95, (k) => {
+      koi.head(Math.sin(k * 9) * 0.3, lerp(gz, gz - 1.7, Math.min(1, k * 2.2)), null, lerp(1.5, 11, k));
+      if (Math.random() < 0.5) S3.spray(koi.x, koi.y, koi.z, 'water', 2, 1.6, { up: 0.2, life: 0.6, size: 0.2, g: 6 });
+    }, ease.inCubic);
+    await G.wait(1.0);
   }
 
   /* =======================================================================
@@ -599,25 +639,39 @@
     state = 'title'; busy = false;
     run = null; lv = null;
     UI.hud(false);
-    UI.hide('scr-end'); UI.hide('scr-shop'); UI.hide('scr-help'); UI.hide('scr-ach');
+    UI.hide('scr-end'); UI.hide('scr-shop'); UI.hide('scr-help'); UI.hide('scr-ach'); UI.hide('scr-koi');
     UI.menu(false);
     UI.hint('');
     G.boost = 1; G.fever = false; G.wish = null; pendingWish = 0;
     UI.setFever(0, Core.FEVER_MAX, 0);
-    G.stars = []; G.edges = [];
-    G.world.alpha = 1; G.world.oy = 0;
-    G.setPalette(Core.HEAVENS[0].pal);
+    G.world.alpha = 1;
+    G.setMood(0);
+    S3.orbit.yaw = 0; S3.orbit.pitch = 0;
     const koi = G.koi;
-    koi.setStage(save.wins > 0 ? 2 : 0); koi.big = save.wins > 0 ? 1.8 : 2.3; koi.wr = 2; koi.alpha = 1; koi.mode = 'wander'; koi.pearl = false;
+    koi.depth = -0.16; koi.air = false;
+    koi.setSkin(skinId());
+    koi.setStage(save.wins > 0 ? 2 : 0); koi.big = 1.7; koi.wr = 0.7; koi.alpha = 1; koi.mode = 'wander'; koi.pearl = false;
     relayout();
-    if (koi.y < -20 || koi.y > G.H + 20) koi.tele(G.W / 2, G.H + 60, -Math.PI / 2);
+    titleDecor();
+    S3.cine(camTitle());
+    koi.tele(-0.8, S3.D / 2 - 1.6, 0);
     kiep = Math.min(kiep, save.kiep);
     const today = todayStr(), dd = save.daily && save.daily.date === today ? save.daily : null;
     UI.title(save, kiep, (k) => { kiep = k; Sfx.ui(); }, {
       daily: dd ? (dd.won ? 'đã hóa rồng' : 'tầng ' + dd.level + '/9') : dayLabel(today),
+      koi: S3.SKINS[skinId()].name,
       achGot: ACH.filter((a) => save.ach[a.id]).length, achTotal: ACH.length,
     });
     UI.show('scr-title');
+  }
+
+  // chín ngọn hoa đăng đã thắp trôi trên hồ ở màn đầu: mỗi ngọn một tầng trời
+  function titleDecor() {
+    const types = ['normal', 'life', 'normal', 'fortune', 'wish', 'normal', 'mystery', 'nova', 'normal'];
+    const spots = [[0.2, 0.06], [0.74, 0.0], [0.42, 0.22], [0.86, 0.3], [0.1, 0.4], [0.58, 0.48], [0.3, 0.66], [0.8, 0.72], [0.5, 0.86]];
+    const stars = spots.map((p, i) => ({ id: i, x: p[0], y: p[1], row: i, type: types[i], state: 'lit', arc: 0, nb: [] }));
+    G.setLevel({ stars, edges: [], sealsNeed: 1, fog: false }, null, () => 1);
+    for (const s of G.stars) { s.born = G.atime - 5; s.litT = -9; }
   }
 
   function startRun(opts) {
@@ -625,6 +679,8 @@
     const daily = !!(opts && opts.daily);
     const today = todayStr();
     run = Core.newRun(daily ? { kiep: 0, seed: Core.dailySeed(today), daily: today } : { kiep });
+    const mine = KOI.find((k) => k.id === skinId());
+    if (mine) mine.give(run);
     lv = Core.genLevel(run);
     told = {};
     UI.hide('scr-title'); UI.hide('scr-end');
@@ -636,8 +692,9 @@
   async function enterLevel(first) {
     state = 'play'; busy = true;
     const cfg = lv.cfg, koi = G.koi;
-    G.setPalette(cfg.pal);
+    G.setMood(run.level - 1, first);
     Sfx.mood(run.level);
+    koi.depth = -0.16; koi.air = false;
     const stage = run.level >= 6 ? 2 : run.level >= 3 ? 1 : 0;
     const evolved = !first && koi.stage < stage && koi.stage < 3;
     if (!evolved) koi.setStage(stage);
@@ -647,13 +704,18 @@
     G.setLevel(lv, run, (m) => Core.oddsOf(run, lv, m));
     relayout();
     syncView();
-    G.world.alpha = 0; G.world.oy = -90;
-    const sc0 = G.scroll;
-    G.tween(0.9, (k) => { G.world.alpha = k; G.world.oy = -90 * (1 - k); G.scroll = sc0 + 0.22 * k; }, ease.outCubic);
-    const ax = G.play.x + G.play.w / 2, ay = G.play.y + G.play.h - 24 * G.unit;
-    koi.anchor = { x: ax, y: ay };
+    // máy quay hạ từ góc ngắm cảnh xuống góc chơi
+    const shot = first ? camTitle() : camGate();
+    shot.k = first ? 1 : 0.85;
+    S3.cine(shot);
+    G.tween(first ? 1.5 : 1.1, (k) => { shot.k = (first ? 1 : 0.85) * (1 - k); }, ease.inOut).then(() => { if (S3.cam.cine === shot) S3.cine(null); });
+    const y0 = S3.orbit.yaw, p0 = S3.orbit.pitch;
+    G.tween(0.8, (k) => { S3.orbit.yaw = y0 * (1 - k); S3.orbit.pitch = p0 * (1 - k); }, ease.outCubic);
+    const a0 = G.world.alpha;
+    G.tween(0.9, (k) => { G.world.alpha = lerp(a0, 1, k); }, ease.outCubic);
+    koi.anchor = { x: 0, z: S3.D / 2 + 0.95 };
     koi.mode = 'wander';
-    if (first || koi.y < -20 || koi.y > G.H + 20) koi.tele(ax, G.H + 80, -Math.PI / 2);
+    koi.tele(first ? koi.x : rand(-1, 1), first ? koi.z : S3.D / 2 + 5.5, -Math.PI / 2);
     UI.banner('Tầng ' + run.level + ' · ' + cfg.name, cfg.sub, cfg.boss ? 'boss' : '', 2.5);
     for (let r = 0; r <= lv.rowIds.length; r++) G.wait(0.35 + r * 0.085).then(() => Sfx.spawn(r * 2));
     await G.wait(1.2);
@@ -661,18 +723,19 @@
       // cá chép lột xác ngay trước mắt người chơi
       const u = G.unit;
       Sfx.evolve();
-      G.ring(koi.x, koi.y, 'gold', 8 * u, 150 * u, 0.9, 5);
-      G.ring(koi.x, koi.y, 'white', 8 * u, 90 * u, 0.6, 3);
-      G.burst(koi.x, koi.y, 'gold', 70, 340 * u, { streak: true, life: 1.1 });
-      G.burst(koi.x, koi.y, 'jade', 30, 240 * u, { streak: true, life: 1.1 });
+      S3.wave(koi.x, koi.z, 'gold', 0.3, 4.5, 1.0);
+      S3.wave(koi.x, koi.z, 'white', 0.3, 2.6, 0.7);
+      S3.splash(koi.x, koi.z, 1.6);
+      G.burst(koi.sx, koi.sy, 'gold', 70, 340 * u, { streak: true, life: 1.1 });
+      G.burst(koi.sx, koi.sy, 'jade', 30, 240 * u, { streak: true, life: 1.1 });
       G.flashBG('gold', 0.4); G.shake(9);
       koi.setStage(stage);
       UI.toast(stage === 1 ? 'Cá chép mọc sừng, lột xác thành <b>Ngư Long</b>' : 'Ngư Long mọc bờm, hóa thành <b>Giao Long</b>', 4200);
       await G.wait(0.6);
     }
     idle();
-    if (run.level === 1) teach('start', 'Chạm một ngôi sao ở hàng dưới để thử vận. Cung sáng càng dài, càng dễ thắp.', 8000);
-    else if (run.level === 2) teach('clover', 'Gặp sao khó? Bấm cỏ bốn lá ở góc dưới rồi chạm sao để cộng 30%.', 7500);
+    if (run.level === 1) teach('start', 'Chạm một ngọn hoa đăng ở gần để thử vận. Cung sáng càng dài, càng dễ thắp.', 8000);
+    else if (run.level === 2) teach('clover', 'Gặp đèn khó? Bấm cỏ bốn lá ở góc dưới rồi chạm đèn để cộng 30%.', 7500);
   }
 
   async function tapStar(id) {
@@ -695,8 +758,8 @@
 
     // lời nhắc theo tình huống
     const lit = events.some((e) => e.t === 'lit'), voided = events.some((e) => e.t === 'void' && e.why === 'fail');
-    if (voided && teach('void', 'Trượt! Sao sụp thành hố đen, hút vận của sao kề bên và bạn mất 1 ❤.')) return;
-    if (lit && teach('lit', 'Sao sáng vừa lan vận sang các sao kề bên. Cứ thắp tiếp để nuôi vận lên cao.')) return;
+    if (voided && teach('void', 'Trượt! Đèn chìm thành xoáy nước, hút vận của đèn kề bên và bạn mất 1 ❤.')) return;
+    if (lit && teach('lit', 'Đèn vừa thắp đã lan vận sang các đèn kề bên. Cứ thắp tiếp để nuôi vận lên cao.')) return;
     const gate = lv.stars[lv.gate];
     if (Core.oddsOf(run, lv, gate) >= 0.5) teach('gate', 'Thiên Môn ở đỉnh đã đủ sáng. Thắp nó để lên tầng, hoặc ở lại vét thêm ngọc.', 8000);
   }
@@ -740,11 +803,13 @@
     state = 'clear';
     G.boost = 1; G.wish = null; pendingWish = 0;
     save.seen = save.seen || run.level >= 2;
-    const sc0 = G.scroll;
-    await G.tween(0.8, (k) => { G.world.alpha = 1 - k; G.world.oy = 130 * k; G.scroll = sc0 + 0.3 * k; }, ease.inOut);
-    G.stars = []; G.edges = [];
-    G.world.oy = 0;
+    await G.tween(0.8, (k) => { G.world.alpha = 1 - k; }, ease.inOut);
+    G.clearLevel();
     if (run.won) return victory();
+    // trong lúc ghé Chợ Trời, hồ nước đã ngả sang màu của tầng kế tiếp
+    G.setMood(run.level, true);
+    G.koi.alpha = 0;
+    G.tween(0.9, (k) => { G.world.alpha = 0.55 * k; }, ease.outCubic);
     shop = Core.genShop(run);
     state = 'shop';
     UI.shop.clearStick();
@@ -774,6 +839,7 @@
     }
     Sfx.ui();
     UI.hide('scr-shop');
+    G.koi.alpha = 1;
     lv = Core.nextLevel(run);
     persist();
     enterLevel(false);
@@ -827,9 +893,10 @@
     G.boost = 1; G.wish = null; G.fever = false; UI.setFever(0, Core.FEVER_MAX, 0);
     const koi = G.koi, u = G.unit;
     Sfx.over();
-    for (const p of koi.pts) G.burst(p.x, p.y, 'rose', 4, 90 * u, { life: 1.2, drag: 1.2, g: -30 });
-    G.burst(koi.x, koi.y, 'white', 20, 160 * u, { life: 0.9 });
-    G.tween(0.9, (k) => { koi.alpha = 1 - k; G.world.alpha = 1 - 0.7 * k; });
+    for (const p of koi.pts) S3.spray(p.x, 0.1, p.z, 'rose', 3, 1.4, { up: 1.2, life: 1.3, size: 0.15, g: -0.6 });
+    G.burst(koi.sx, koi.sy, 'white', 20, 160 * u, { life: 0.9 });
+    S3.ripple(koi.x, koi.z, 2);
+    G.tween(0.9, (k) => { koi.alpha = 1 - k; G.world.alpha = 1 - 0.6 * k; });
     UI.banner('Vận Tận', '', 'bad', 1.9);
     await G.wait(1.7);
     finishRun(false);
@@ -849,28 +916,31 @@
     G.fever = false; UI.setFever(0, Core.FEVER_MAX, 0);
     const koi = G.koi, u = G.unit;
     UI.hud(false);
-    G.setPalette(['#1a1204', '#c8901a', '#fff1b8']);
-    koi.setStage(3); koi.big = clamp(G.W / 400, 1.1, 1.6); koi.alpha = 1; koi.mode = 'manual'; koi.pearl = true;
-    koi.tele(G.W / 2, G.H + 120, -Math.PI / 2);
+    G.setMood(8, true);
+    G.tween(1.0, (k) => { G.world.alpha = k; });
+    // máy quay ngước lên trời đón rồng bay
+    const shot = camSky(); shot.k = 1; S3.cine(shot);
+    koi.setStage(3); koi.big = 1.25; koi.alpha = 1; koi.mode = 'manual'; koi.pearl = true; koi.air = true;
+    koi.tele(0, S3.D / 2 + 2, -Math.PI / 2, -1.5);
     Sfx.roar();
     await G.wait(0.5);
     Sfx.win();
     UI.banner('Hóa Rồng', 'Cá chép đã vượt Vũ Môn', '', 3.4);
     G.flashBG('gold', 0.6);
-    const cx = G.W / 2, amp = Math.min(G.W * 0.34, 260);
+    S3.splash(0, S3.D / 2 + 2, 3);
     let lastBurst = 0;
-    await G.tween(3.6, (k) => {
-      const y = lerp(G.H + 120, G.H * 0.3, k);
-      const x = cx + Math.sin(k * TAU * 1.6) * amp * (1 - k * 0.45);
-      koi.head(x, y);
+    await G.tween(4.0, (k) => {
+      const y = lerp(-1.5, 9.5, k);
+      const x = Math.sin(k * TAU * 1.7) * 3.4 * (1 - k * 0.35);
+      const z = lerp(S3.D / 2 + 2, -2.5, k) + Math.cos(k * TAU * 1.7) * 1.6;
+      koi.head(x, z, null, y);
       if (k - lastBurst > 0.07) {
         lastBurst = k;
-        G.burst(x, y, Math.random() < 0.5 ? 'gold' : 'jade', 14, 220 * u, { streak: true, life: 0.9 });
-        G.ring(x, y, 'gold', 8 * u, 70 * u, 0.6, 2.5);
+        G.burst(koi.sx, koi.sy, Math.random() < 0.5 ? 'gold' : 'jade', 14, 220 * u, { streak: true, life: 0.9 });
         G.shake(4);
       }
     }, ease.inOut);
-    koi.anchor = { x: cx, y: G.H * 0.26 }; koi.wr = Math.min(2.6, G.W / 190); koi.mode = 'wander';
+    koi.depth = 8.6; koi.anchor = { x: 0, z: -1.5 }; koi.wr = 2.3; koi.mode = 'wander';
     for (let i = 0; i < 6; i++) {
       G.wait(i * 0.22).then(() => {
         const x = rand(0.15, 0.85) * G.W, y = rand(0.12, 0.5) * G.H;
@@ -901,7 +971,7 @@
     const T = Core.STAR_TYPES[ms.type];
     let h = '<b>' + T.name + '</b>';
     if (ms.state === 'lit') h += 'Đã thắp sáng. Đang lan vận cho các sao kề bên.';
-    else if (ms.state === 'void') h += 'Hố đen. Đã hút bớt vận của các sao kề bên.';
+    else if (ms.state === 'void') h += 'Xoáy nước. Đã hút bớt vận của các đèn kề bên.';
     else {
       h += T.desc;
       if (vs.hidden) h += '<br><em>Sương che mất tỉ lệ.</em> Thắp một sao kề bên để soi rõ.';
@@ -917,20 +987,35 @@
   /* ---------- nhập liệu ---------- */
   function bind() {
     const fx = $('fx');
-    let press = null, holdTimer = 0, held = false;
+    let press = null, holdTimer = 0, held = false, drag = null;
 
     fx.addEventListener('pointerdown', (e) => {
       Sfx.init();
-      if (state !== 'play') return;
-      if (G.wishAt(e.clientX, e.clientY)) { press = null; catchWish(); return; }
-      if (busy) { G.boost = 2.6; press = null; return; }   // đang diễn hoạt cảnh: chạm để tua nhanh
-      const id = G.starAt(e.clientX, e.clientY);
+      if (state !== 'play' && state !== 'title') return;
+      if (state === 'play' && G.wishAt(e.clientX, e.clientY)) { press = null; catchWish(); return; }
+      const id = state === 'play' ? G.starAt(e.clientX, e.clientY) : -1;
+      if (state === 'play' && busy) G.boost = 2.6;          // đang diễn hoạt cảnh: chạm để tua nhanh
+      if (id < 0 || busy) {
+        // chạm vào mặt nước: kéo để xoay góc nhìn, chạm nhẹ để gọi cá chép bơi tới
+        drag = { x: e.clientX, y: e.clientY, yaw: S3.orbit.yaw, pitch: S3.orbit.pitch, moved: false };
+        press = null;
+        return;
+      }
       press = { x: e.clientX, y: e.clientY, id };
       held = false;
       clearTimeout(holdTimer);
-      if (id >= 0 && e.pointerType !== 'mouse') holdTimer = setTimeout(() => { held = true; starTip(id); }, 420);
+      if (e.pointerType !== 'mouse') holdTimer = setTimeout(() => { held = true; starTip(id); }, 420);
     });
     fx.addEventListener('pointermove', (e) => {
+      if (drag) {
+        const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+        if (!drag.moved && Math.hypot(dx, dy) > 9) drag.moved = true;
+        if (drag.moved) {
+          S3.orbit.yaw = clamp(drag.yaw - dx * 0.0045, -0.42, 0.42);
+          S3.orbit.pitch = clamp(drag.pitch + dy * 0.0028, -0.22, 0.14);
+        }
+        return;
+      }
       if (press) {
         if (Math.hypot(e.clientX - press.x, e.clientY - press.y) > 16) { clearTimeout(holdTimer); press.id = -1; if (held) UI.tip(null); }
         return;
@@ -943,14 +1028,26 @@
         if (id >= 0) starTip(id); else UI.tip(null);
       }
     });
-    fx.addEventListener('pointerup', () => {
+    fx.addEventListener('pointerup', (e) => {
       clearTimeout(holdTimer);
+      if (drag) {
+        const d = drag; drag = null;
+        if (!d.moved) {
+          const w = S3.fromScreen(e.clientX, e.clientY);
+          if (w && Math.abs(w.x) < S3.Wd / 2 + 4 && w.z > -S3.D / 2 - 1 && w.z < S3.D / 2 + 6) {
+            S3.ripple(w.x, w.z, 1.1);
+            S3.spray(w.x, 0.04, w.z, 'water', 6, 1.6, { up: 1.3, life: 0.5, size: 0.14 });
+            if (!busy) { G.koi.mode = 'wander'; G.koi.anchor = { x: w.x, z: w.z }; }
+          }
+        }
+        return;
+      }
       const p = press; press = null;
       if (held) { held = false; UI.tip(null); return; }
       if (!p || p.id < 0) return;
       tapStar(p.id);
     });
-    fx.addEventListener('pointercancel', () => { clearTimeout(holdTimer); press = null; UI.tip(null); });
+    fx.addEventListener('pointercancel', () => { clearTimeout(holdTimer); press = null; drag = null; UI.tip(null); });
     fx.addEventListener('pointerleave', () => { G.hover = -1; if (!press) UI.tip(null); });
 
     const closeMenu = () => { UI.menu(false); quitArmed = false; $('btn-quit').textContent = 'Bỏ lượt này'; };
@@ -962,6 +1059,16 @@
     $('btn-help').addEventListener('click', () => { closeMenu(); Sfx.ui(); UI.show('scr-help'); });
     $('btn-help-ok').addEventListener('click', () => { Sfx.ui(); UI.hide('scr-help'); });
     $('btn-ach').addEventListener('click', openAch);
+    $('btn-koi').addEventListener('click', () => { Sfx.init(); Sfx.ui(); renderKoi(); UI.show('scr-koi'); $('scr-koi').scrollTop = 0; });
+    $('btn-koi-ok').addEventListener('click', () => { Sfx.ui(); UI.hide('scr-koi'); if (state === 'title') showTitle(); });
+    $('koi-list').addEventListener('click', (e) => {
+      const b = e.target.closest('.koi-row'); if (!b || b.disabled) return;
+      save.skin = b.dataset.id; persist();
+      Sfx.buy();
+      G.koi.setSkin(skinId());
+      S3.splash(G.koi.x, G.koi.z, 1);
+      renderKoi();
+    });
     $('btn-ach2').addEventListener('click', () => { closeMenu(); openAch(); });
     $('btn-ach-ok').addEventListener('click', () => { Sfx.ui(); UI.hide('scr-ach'); });
     $('btn-again').addEventListener('click', () => {
@@ -1011,8 +1118,9 @@
       Sfx.fever(); buzz([30, 40, 30, 40, 80]);
       UI.banner('Thời Vận', '3 lượt kế tiếp: tỉ lệ +15%, ngọc nhân đôi', '', 1.9);
       G.flashBG('gold', 0.55); G.shake(10); G.punch(0.03);
-      G.burst(koi.x, koi.y, 'gold', 70, 400 * u, { streak: true, life: 1.1 });
-      G.ring(koi.x, koi.y, 'gold', 10 * u, 240 * u, 0.9, 5);
+      G.burst(koi.sx, koi.sy, 'gold', 70, 400 * u, { streak: true, life: 1.1 });
+      S3.wave(koi.x, koi.z, 'gold', 0.3, 7, 1.0);
+      S3.splash(koi.x, koi.z, 1.4);
       syncHUD(); syncView();
       award('thoivan');
     });
@@ -1041,7 +1149,7 @@
       const b = e.target.closest('.gem'); if (!b || !b.dataset.id) return;
       const c = Core.CHARM_BY_ID[b.dataset.id], r = b.getBoundingClientRect();
       const n = run ? run.charms[c.id] || 0 : 0;
-      UI.tip('<b>' + c.icon + ' ' + c.name + (n > 1 ? ' ×' + n : '') + '</b>' + c.desc, r.left + r.width / 2, r.top - 4);
+      UI.tip('<b>' + c.name + (n > 1 ? ' ×' + n : '') + '</b>' + c.desc, r.left + r.width / 2, r.top - 4);
       clearTimeout(charmTip.t);
       charmTip.t = setTimeout(() => UI.tip(null), 3200);
     };
@@ -1084,7 +1192,7 @@
         stickBusy = false;
         if (!res) { renderShop(false); return; }
         let text;
-        if (res.k === 'charm') { const c = Core.CHARM_BY_ID[res.id]; text = 'Nhận bảo vật ' + c.icon + ' ' + c.name + ': ' + c.desc; }
+        if (res.k === 'charm') { const c = Core.CHARM_BY_ID[res.id]; text = 'Nhận bảo vật ' + c.name + ': ' + c.desc; }
         else if (res.k === 'clover') text = 'Nhận 2 cỏ bốn lá.';
         else if (res.k === 'life') text = 'Hồi 1 ❤.';
         else text = 'Quẻ xấu. Hoàn lại ' + fmt(res.gain) + ' ngọc.';
@@ -1101,14 +1209,20 @@
     window.addEventListener('orientationchange', () => setTimeout(relayout, 250));
     document.addEventListener('visibilitychange', () => { if (!document.hidden) Sfx.resume(); });
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') { UI.hide('scr-help'); UI.hide('scr-ach'); closeMenu(); }
+      if (e.key === 'Escape') { UI.hide('scr-help'); UI.hide('scr-ach'); UI.hide('scr-koi'); closeMenu(); }
     });
   }
 
   /* ---------- khởi động ---------- */
   function boot() {
     loadSave();
-    G.init($('bg'), $('fx'));
+    if (!G.init($('bg'), $('fx'))) {
+      // không dựng được cảnh 3D (trình duyệt tắt WebGL): báo rõ thay vì để màn hình đen
+      document.body.classList.add('no-3d');
+      $('record').textContent = 'Trình duyệt này không bật được đồ hoạ 3D (WebGL). Hãy thử trình duyệt khác hoặc bật tăng tốc phần cứng.';
+      $('btn-start').disabled = true; $('btn-daily').disabled = true;
+      return;
+    }
     G.speed = save.fast ? 1.8 : 1;
     Sfx.setMuted(!!save.muted);
     $('btn-sound').setAttribute('aria-pressed', save.muted ? 'false' : 'true');
@@ -1116,7 +1230,6 @@
     G.onFrame = onFrame;
     bind();
     kiep = 0;
-    G.setPalette(Core.HEAVENS[0].pal, true);
     showTitle();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout).catch(() => {});
   }
